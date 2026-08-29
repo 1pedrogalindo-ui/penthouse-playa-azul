@@ -40,7 +40,7 @@ const copy = {
     storyKicker: "Playa Azul · frente al mar", storyTitle: "Aquí, las vacaciones empiezan antes de llegar.", storyText: "Espacios amplios, luz natural y una terraza privada suspendida sobre el océano. Todo está listo para que vengas con tu familia o amigos y te dediques únicamente a disfrutar.", featureTitle: "Un dúplex diseñado para disfrutar sin horarios",
     galleryKicker: "45 fotografías reales", galleryTitle: "Recorre cada espacio", galleryText: "Abre cualquier fotografía y navega la experiencia en pantalla completa.", tabs: ["Todo", "Penthouse", "Amenidades", "Restaurante", "Edificio"],
     amenitiesKicker: "Todo dentro del complejo", amenitiesTitle: "Más que hospedarte: vivir Playa Azul", restaurantTitle: "Atardeceres que también se saborean.", restaurantText: "El restaurante del complejo te permite disfrutar sin salir: una comida tranquila, el sonido del mar y el sol cayendo sobre el Pacífico.",
-    finalKicker: "Tu próxima escapada", finalTitle: "El mar ya está listo. ¿Y tú?", finalText: "Escríbenos con tus fechas y número de huéspedes. Confirmaremos disponibilidad y tarifa directamente por WhatsApp.", quote: "Quiero consultar fechas",
+    finalKicker: "Tu próxima escapada", finalTitle: "El mar ya está listo. ¿Y tú?", finalText: "Escríbenos con tus fechas y número de huéspedes. Confirmaremos disponibilidad y tarifa directamente por WhatsApp.", quote: "Quiero consultar fechas", continue: "Sigue descubriendo", nextStops: ["La experiencia", "El penthouse", "Las amenidades", "El restaurante", "La galería", "Tu próxima escapada"],
   },
   en: {
     nav: ["Experience", "Penthouse", "Amenities", "Gallery"], available: "Vacation rental · Tonsupa, Ecuador", titleA: "Your place on", titleB: "the Pacific.",
@@ -48,7 +48,7 @@ const copy = {
     storyKicker: "Playa Azul · oceanfront", storyTitle: "Here, your vacation begins before you arrive.", storyText: "Open spaces, natural light and a private terrace suspended above the ocean. Everything is ready for you to arrive with family or friends and simply enjoy.", featureTitle: "A duplex designed for unhurried days",
     galleryKicker: "45 real photographs", galleryTitle: "Explore every space", galleryText: "Open any photograph and navigate the full-screen experience.", tabs: ["All", "Penthouse", "Amenities", "Restaurant", "Building"],
     amenitiesKicker: "Everything within the complex", amenitiesTitle: "More than a stay: experience Playa Azul", restaurantTitle: "Sunsets you can savor.", restaurantText: "The on-site restaurant lets you enjoy everything without leaving: a relaxed meal, the sound of the sea, and the sun setting over the Pacific.",
-    finalKicker: "Your next escape", finalTitle: "The ocean is ready. Are you?", finalText: "Send us your dates and number of guests. We will confirm availability and rates directly on WhatsApp.", quote: "Check my dates",
+    finalKicker: "Your next escape", finalTitle: "The ocean is ready. Are you?", finalText: "Send us your dates and number of guests. We will confirm availability and rates directly on WhatsApp.", quote: "Check my dates", continue: "Keep exploring", nextStops: ["The experience", "The penthouse", "The amenities", "The restaurant", "The gallery", "Your next escape"],
   },
 };
 const whatsapp = "https://wa.me/593988335552?text=Hola%2C%20quiero%20consultar%20disponibilidad%20del%20Penthouse%20Playa%20Azul.%20Llegada%3A%20____%20Salida%3A%20____%20Hu%C3%A9spedes%3A%20____";
@@ -58,6 +58,7 @@ export default function Home() {
   const [category, setCategory] = useState<"all" | Category>("all");
   const [active, setActive] = useState<number | null>(null);
   const [menu, setMenu] = useState(false);
+  const [journey, setJourney] = useState({ index: 0, progress: 0, visible: true });
   const t = copy[lang];
   const filtered = useMemo(() => category === "all" ? gallery : gallery.filter((item) => item.category === category), [category]);
   const current = active === null ? null : filtered[active];
@@ -66,7 +67,24 @@ export default function Home() {
     const handler = (event: KeyboardEvent) => { if (event.key === "ArrowRight") setActive((active + 1) % filtered.length); if (event.key === "ArrowLeft") setActive((active - 1 + filtered.length) % filtered.length); };
     window.addEventListener("keydown", handler); return () => window.removeEventListener("keydown", handler);
   }, [active, filtered.length]);
+  useEffect(() => {
+    const stops = ["experiencia", "penthouse", "amenidades", "restaurante", "galeria", "contacto"];
+    const updateJourney = () => {
+      const viewportMark = window.scrollY + window.innerHeight * 0.58;
+      const nextIndex = stops.findIndex((id) => {
+        const element = document.getElementById(id);
+        return element ? element.offsetTop > viewportMark : false;
+      });
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      setJourney({ index: nextIndex === -1 ? stops.length - 1 : nextIndex, progress: Math.min(1, window.scrollY / maxScroll), visible: nextIndex !== -1 && nextIndex < stops.length - 1 });
+    };
+    updateJourney();
+    window.addEventListener("scroll", updateJourney, { passive: true });
+    window.addEventListener("resize", updateJourney);
+    return () => { window.removeEventListener("scroll", updateJourney); window.removeEventListener("resize", updateJourney); };
+  }, []);
   const move = (direction: number) => setActive((value) => value === null ? 0 : (value + direction + filtered.length) % filtered.length);
+  const journeyIds = ["experiencia", "penthouse", "amenidades", "restaurante", "galeria", "contacto"];
 
   return (
     <main>
@@ -85,7 +103,7 @@ export default function Home() {
 
       <section id="experiencia" className="story section-pad">
         <div className="story-copy"><p className="kicker">{t.storyKicker}</p><h2>{t.storyTitle}</h2><p>{t.storyText}</p><div className="micro-features"><span><Waves/> {lang === "es" ? "Acceso directo a la playa" : "Direct beach access"}</span><span><Snowflake/> {lang === "es" ? "Aire acondicionado" : "Air conditioning"}</span><span><Users/> {lang === "es" ? "Ideal para familias y grupos" : "Perfect for families and groups"}</span></div></div>
-        <button className="story-photo large" onClick={() => { setCategory("penthouse"); setActive(6); }} aria-label="Abrir fotografía de la terraza"><Image src="/images/penthouse-07.webp" alt="Jacuzzi en la terraza con vista al mar" fill quality={92} sizes="(max-width: 800px) 100vw, 60vw" /><span><Expand/> {lang === "es" ? "Abrir vista" : "Open view"}</span></button>
+        <button className="story-photo large" onClick={() => { setCategory("penthouse"); setActive(29); }} aria-label="Abrir fotografía de la terraza"><Image src="/images/penthouse-30.webp" alt="Terraza privada con jacuzzi y vista directa al océano" fill quality={94} sizes="(max-width: 800px) 100vw, 60vw" /><span><Expand/> {lang === "es" ? "Abrir vista" : "Open view"}</span></button>
         <div className="story-photo small"><Image src="/images/amenity-05.webp" alt="Atardecer sobre la playa" fill quality={92} sizes="(max-width: 800px) 50vw, 30vw" /></div>
       </section>
 
@@ -105,7 +123,7 @@ export default function Home() {
         <div className="amenities-copy"><p className="kicker light">{t.amenitiesKicker}</p><h2>{t.amenitiesTitle}</h2><div className="amenity-list">{[lang === "es" ? "Piscina frente al mar" : "Oceanfront pool", lang === "es" ? "Acceso directo y carpas en la playa" : "Direct beach access and sunshades", lang === "es" ? "Canchas de tenis, básquet, fútbol y vóley" : "Tennis, basketball, football and volleyball courts", lang === "es" ? "Sala de ping-pong" : "Ping-pong room", lang === "es" ? "Restaurante dentro del complejo" : "Restaurant within the complex"].map(item => <span key={item}><Check/>{item}</span>)}</div><a href="#galeria" className="text-link">{lang === "es" ? "Ver todas las amenidades" : "See all amenities"}<ArrowRight/></a></div>
       </section>
 
-      <section className="restaurant section-pad"><div className="restaurant-copy"><p className="kicker">{lang === "es" ? "Restaurante con vista" : "Restaurant with a view"}</p><h2>{t.restaurantTitle}</h2><p>{t.restaurantText}</p></div><button className="restaurant-photo" onClick={() => { setCategory("restaurant"); setActive(1); }}><Image src="/images/restaurant-02.webp" alt="Restaurante con vista al atardecer" fill sizes="(max-width: 800px) 100vw, 60vw" /><span><Expand/> {lang === "es" ? "Ver restaurante" : "View restaurant"}</span></button></section>
+      <section id="restaurante" className="restaurant section-pad"><div className="restaurant-copy"><p className="kicker">{lang === "es" ? "Restaurante con vista" : "Restaurant with a view"}</p><h2>{t.restaurantTitle}</h2><p>{t.restaurantText}</p></div><button className="restaurant-photo" onClick={() => { setCategory("restaurant"); setActive(1); }}><Image src="/images/restaurant-02.webp" alt="Restaurante con vista al atardecer" fill sizes="(max-width: 800px) 100vw, 60vw" /><span><Expand/> {lang === "es" ? "Ver restaurante" : "View restaurant"}</span></button></section>
 
       <section id="galeria" className="gallery-section section-pad">
         <div className="gallery-heading"><div><p className="kicker">{t.galleryKicker}</p><h2>{t.galleryTitle}</h2></div><p>{t.galleryText}</p></div>
@@ -117,6 +135,10 @@ export default function Home() {
 
       <footer><div className="footer-brand"><span className="brand-mark">PA</span><span><strong>Penthouse Playa Azul</strong><small><MapPin/> Tonsupa · Ecuador</small></span></div><div className="footer-links"><a href="#penthouse">Penthouse</a><a href="#amenidades">{t.nav[2]}</a><a href="#galeria">{t.nav[3]}</a></div><a className="footer-contact" href={whatsapp} target="_blank" rel="noreferrer"><MessageCircle/> +593 98 833 5552</a><p className="copyright">© 2026 Penthouse Playa Azul</p></footer>
       <a className="float-whatsapp" href={whatsapp} target="_blank" rel="noreferrer" aria-label="Consultar disponibilidad por WhatsApp"><MessageCircle/><span>{t.reserve}</span></a>
+      <a className={`journey-guide ${journey.visible ? "visible" : ""}`} href={`#${journeyIds[journey.index]}`} aria-label={`${t.continue}: ${t.nextStops[journey.index]}`}>
+        <span className="journey-progress" style={{ "--journey-progress": `${journey.progress * 360}deg` } as React.CSSProperties}><ArrowDown/></span>
+        <span className="journey-copy"><small>{t.continue}</small><strong>{t.nextStops[journey.index]}</strong></span>
+      </a>
 
       <Dialog open={active !== null} onOpenChange={(open) => !open && setActive(null)}><DialogContent className="lightbox" showCloseButton={false}><DialogTitle className="sr-only">{current?.[lang] ?? "Galería"}</DialogTitle>{current && <div className="lightbox-image"><Image src={current.src} alt={current[lang]} fill quality={96} sizes="100vw" /></div>}<button className="lightbox-close" onClick={() => setActive(null)} aria-label="Cerrar"><X/></button><button className="lightbox-prev" onClick={() => move(-1)} aria-label="Anterior"><ArrowLeft/></button><button className="lightbox-next" onClick={() => move(1)} aria-label="Siguiente"><ArrowRight/></button><div className="lightbox-caption"><span>{current?.[lang]}</span><small>{active !== null ? active + 1 : 0} / {filtered.length}</small></div></DialogContent></Dialog>
     </main>
