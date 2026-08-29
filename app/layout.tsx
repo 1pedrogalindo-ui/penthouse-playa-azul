@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     siteName: "Penthouse Playa Azul",
     images: [
       {
-        url: "/images/penthouse-01.webp",
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Penthouse Playa Azul - Vista frente al mar",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     title: "Penthouse Playa Azul | Vacaciones frente al mar en Tonsupa",
     description:
       "Penthouse dúplex de arriendo vacacional frente al mar en Tonsupa: 3 dormitorios, 3 baños, jacuzzi privado, piscina y acceso directo a la playa.",
-    images: ["/images/penthouse-01.webp"],
+    images: ["/og-image.jpg"],
   },
 };
 
