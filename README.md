@@ -1,19 +1,12 @@
-# Penthouse Playa Azul — Tonsupa
+# Penthouse Playa Azul
 
-Landing page oficial del **Penthouse Playa Azul en Tonsupa, Ecuador**, orientada a arriendo vacacional y reservas directas por WhatsApp.
+Landing inmersiva para el Penthouse Playa Azul en Tonsupa, Ecuador. Desarrollada con Next.js, TypeScript y una galería responsive de 45 fotografías reales.
 
-## Características
+## Desarrollo local
 
-- Penthouse dúplex frente al mar
-- 3 dormitorios
-- 3 baños
-- Jacuzzi privado con vista al mar
-- Aire acondicionado
-- Full equipado
-- Piscina y acceso a amenidades del edificio
-- Galería de fotos reales actuales
-- CTA de reserva directa por WhatsApp
+```bash
+npm install
+npm run dev
+```
 
-## Publicación
-
-Sitio estático preparado para GitHub Pages.
+El despliegue a GitHub Pages se ejecuta automáticamente al actualizar la rama `main`.

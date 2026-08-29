@@ -1,1 +1,0 @@
-Individual image gallery assets for full-screen lightbox.
