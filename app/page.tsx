@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowDown, ArrowLeft, ArrowRight, BedDouble, Check, ChevronRight, Expand, MapPin, Menu, MessageCircle, Snowflake, Sparkles, Users, Waves, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { trackEvent } from "@/components/analytics";
 
 type Category = "penthouse" | "amenities" | "restaurant" | "building";
 type GalleryImage = { src: string; category: Category; es: string; en: string };
@@ -59,6 +60,7 @@ export default function Home() {
   const [active, setActive] = useState<number | null>(null);
   const [menu, setMenu] = useState(false);
   const [journey, setJourney] = useState({ index: 0, progress: 0, visible: true });
+  const trackedScrollDepths = useRef(new Set<number>());
   const t = copy[lang];
   const filtered = useMemo(() => category === "all" ? gallery : gallery.filter((item) => item.category === category), [category]);
   const current = active === null ? null : filtered[active];
@@ -83,38 +85,58 @@ export default function Home() {
     window.addEventListener("resize", updateJourney);
     return () => { window.removeEventListener("scroll", updateJourney); window.removeEventListener("resize", updateJourney); };
   }, []);
+  useEffect(() => {
+    const measureScroll = () => {
+      const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const depth = Math.round((window.scrollY / maxScroll) * 100);
+      [25, 50, 75, 90].forEach((threshold) => {
+        if (depth >= threshold && !trackedScrollDepths.current.has(threshold)) {
+          trackedScrollDepths.current.add(threshold);
+          trackEvent("scroll_depth", { percent_scrolled: threshold });
+        }
+      });
+    };
+    window.addEventListener("scroll", measureScroll, { passive: true });
+    return () => window.removeEventListener("scroll", measureScroll);
+  }, []);
   const move = (direction: number) => setActive((value) => value === null ? 0 : (value + direction + filtered.length) % filtered.length);
   const journeyIds = ["experiencia", "penthouse", "amenidades", "restaurante", "galeria", "contacto"];
+  const trackLead = (location: string) => trackEvent("generate_lead", { lead_source: "whatsapp", cta_location: location, language: lang }, "Lead");
+  const openGallery = (nextCategory: Category, index: number, source: string) => {
+    setCategory(nextCategory);
+    setActive(index);
+    trackEvent("gallery_open", { gallery_category: nextCategory, image_index: index + 1, source, language: lang }, "ViewContent");
+  };
 
   return (
     <main>
       <header className="site-header">
         <a className="brand" href="#inicio" aria-label="Penthouse Playa Azul, inicio"><span className="brand-mark">PA</span><span>Penthouse <em>Playa Azul</em></span></a>
         <nav className={menu ? "nav open" : "nav"} aria-label="Navegación principal">{["experiencia", "penthouse", "amenidades", "galeria"].map((id, i) => <a key={id} href={`#${id}`} onClick={() => setMenu(false)}>{t.nav[i]}</a>)}</nav>
-        <div className="header-actions"><button className="lang" onClick={() => setLang(lang === "es" ? "en" : "es")} aria-label="Cambiar idioma">{lang === "es" ? "EN" : "ES"}</button><a className="nav-cta" href={whatsapp} target="_blank" rel="noreferrer">{t.reserve}<ChevronRight size={16}/></a><button className="menu-button" onClick={() => setMenu(!menu)} aria-label="Abrir menú">{menu ? <X/> : <Menu/>}</button></div>
+        <div className="header-actions"><button className="lang" onClick={() => { const nextLang = lang === "es" ? "en" : "es"; setLang(nextLang); trackEvent("language_change", { language: nextLang }); }} aria-label="Cambiar idioma">{lang === "es" ? "EN" : "ES"}</button><a className="nav-cta" href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackLead("header")}>{t.reserve}<ChevronRight size={16}/></a><button className="menu-button" onClick={() => setMenu(!menu)} aria-label="Abrir menú">{menu ? <X/> : <Menu/>}</button></div>
       </header>
 
       <section id="inicio" className="hero">
         <Image src="/images/amenity-06.webp" alt="Piscina frente al océano en Playa Azul" fill priority quality={95} sizes="100vw" className="hero-image" /><div className="hero-shade" />
-        <div className="hero-content"><p className="eyebrow"><span />{t.available}</p><h1>{t.titleA}<br/><i>{t.titleB}</i></h1><p className="hero-intro">{t.intro}</p><div className="hero-buttons"><a className="button button-coral" href={whatsapp} target="_blank" rel="noreferrer"><MessageCircle size={19}/>{t.reserve}</a><a className="button button-glass" href="#experiencia">{t.explore}<ArrowDown size={18}/></a></div></div>
+        <div className="hero-content"><p className="eyebrow"><span />{t.available}</p><h1>{t.titleA}<br/><i>{t.titleB}</i></h1><p className="hero-intro">{t.intro}</p><div className="hero-buttons"><a className="button button-coral" href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackLead("hero") }><MessageCircle size={19}/>{t.reserve}</a><a className="button button-glass" href="#experiencia" onClick={() => trackEvent("cta_click", { cta_location: "hero_experience", language: lang })}>{t.explore}<ArrowDown size={18}/></a></div></div>
         <div className="hero-facts"><span><strong>3</strong> {lang === "es" ? "dormitorios" : "bedrooms"}</span><span><strong>3</strong> {lang === "es" ? "baños" : "bathrooms"}</span><span><strong>1</strong> jacuzzi {lang === "es" ? "privado" : "private"}</span><span><strong>∞</strong> {lang === "es" ? "vista al mar" : "ocean view"}</span></div>
         <a className="scroll-cue" href="#experiencia"><span>{t.scroll}</span><ArrowDown size={18}/></a>
       </section>
 
       <section id="experiencia" className="story section-pad">
         <div className="story-copy"><p className="kicker">{t.storyKicker}</p><h2>{t.storyTitle}</h2><p>{t.storyText}</p><div className="micro-features"><span><Waves/> {lang === "es" ? "Acceso directo a la playa" : "Direct beach access"}</span><span><Snowflake/> {lang === "es" ? "Aire acondicionado" : "Air conditioning"}</span><span><Users/> {lang === "es" ? "Ideal para familias y grupos" : "Perfect for families and groups"}</span></div></div>
-        <button className="story-photo large" onClick={() => { setCategory("penthouse"); setActive(29); }} aria-label="Abrir fotografía de la terraza"><Image src="/images/penthouse-30.webp" alt="Terraza privada con jacuzzi y vista directa al océano" fill quality={94} sizes="(max-width: 800px) 100vw, 60vw" /><span><Expand/> {lang === "es" ? "Abrir vista" : "Open view"}</span></button>
+        <button className="story-photo large" onClick={() => openGallery("penthouse", 29, "experience_terrace")} aria-label="Abrir fotografía de la terraza"><Image src="/images/penthouse-30.webp" alt="Terraza privada con jacuzzi y vista directa al océano" fill quality={94} sizes="(max-width: 800px) 100vw, 60vw" /><span><Expand/> {lang === "es" ? "Abrir vista" : "Open view"}</span></button>
         <div className="story-photo small"><Image src="/images/amenity-05.webp" alt="Atardecer sobre la playa" fill quality={92} sizes="(max-width: 800px) 50vw, 30vw" /></div>
       </section>
 
       <section id="penthouse" className="inside section-pad">
         <div className="inside-heading"><p className="kicker">{lang === "es" ? "Adentro se siente como casa" : "Inside feels like home"}</p><h2>{t.featureTitle}</h2></div>
         <div className="editorial-grid">
-          <button className="editorial-photo tall" onClick={() => { setCategory("penthouse"); setActive(22); }}><Image src="/images/penthouse-23.webp" alt="Comedor con vista al océano" fill sizes="(max-width: 800px) 100vw, 45vw" /><span>{lang === "es" ? "Comedor panorámico" : "Panoramic dining"}</span></button>
+          <button className="editorial-photo tall" onClick={() => openGallery("penthouse", 22, "penthouse_dining")}><Image src="/images/penthouse-23.webp" alt="Comedor con vista al océano" fill sizes="(max-width: 800px) 100vw, 45vw" /><span>{lang === "es" ? "Comedor panorámico" : "Panoramic dining"}</span></button>
           <div className="feature-card ocean"><BedDouble/><strong>3</strong><span>{lang === "es" ? "dormitorios para descansar de verdad" : "bedrooms made for real rest"}</span></div>
-          <button className="editorial-photo" onClick={() => { setCategory("penthouse"); setActive(25); }}><Image src="/images/penthouse-26.webp" alt="Dormitorio principal" fill sizes="(max-width: 800px) 100vw, 30vw" /><span>{lang === "es" ? "Suite principal" : "Main suite"}</span></button>
+          <button className="editorial-photo" onClick={() => openGallery("penthouse", 25, "penthouse_main_suite")}><Image src="/images/penthouse-26.webp" alt="Dormitorio principal" fill sizes="(max-width: 800px) 100vw, 30vw" /><span>{lang === "es" ? "Suite principal" : "Main suite"}</span></button>
           <div className="feature-card sand"><Sparkles/><strong>100%</strong><span>{lang === "es" ? "equipado para llegar y disfrutar" : "equipped—just arrive and enjoy"}</span></div>
-          <button className="editorial-photo wide" onClick={() => { setCategory("penthouse"); setActive(16); }}><Image src="/images/penthouse-17.webp" alt="Sala del penthouse" fill sizes="(max-width: 800px) 100vw, 55vw" /><span>{lang === "es" ? "Sala amplia" : "Spacious lounge"}</span></button>
+          <button className="editorial-photo wide" onClick={() => openGallery("penthouse", 16, "penthouse_lounge")}><Image src="/images/penthouse-17.webp" alt="Sala del penthouse" fill sizes="(max-width: 800px) 100vw, 55vw" /><span>{lang === "es" ? "Sala amplia" : "Spacious lounge"}</span></button>
         </div>
       </section>
 
@@ -123,18 +145,18 @@ export default function Home() {
         <div className="amenities-copy"><p className="kicker light">{t.amenitiesKicker}</p><h2>{t.amenitiesTitle}</h2><div className="amenity-list">{[lang === "es" ? "Piscina frente al mar" : "Oceanfront pool", lang === "es" ? "Acceso directo y carpas en la playa" : "Direct beach access and sunshades", lang === "es" ? "Canchas de tenis, básquet, fútbol y vóley" : "Tennis, basketball, football and volleyball courts", lang === "es" ? "Sala de ping-pong" : "Ping-pong room", lang === "es" ? "Restaurante dentro del complejo" : "Restaurant within the complex"].map(item => <span key={item}><Check/>{item}</span>)}</div><a href="#galeria" className="text-link">{lang === "es" ? "Ver todas las amenidades" : "See all amenities"}<ArrowRight/></a></div>
       </section>
 
-      <section id="restaurante" className="restaurant section-pad"><div className="restaurant-copy"><p className="kicker">{lang === "es" ? "Restaurante con vista" : "Restaurant with a view"}</p><h2>{t.restaurantTitle}</h2><p>{t.restaurantText}</p></div><button className="restaurant-photo" onClick={() => { setCategory("restaurant"); setActive(1); }}><Image src="/images/restaurant-02.webp" alt="Restaurante con vista al atardecer" fill sizes="(max-width: 800px) 100vw, 60vw" /><span><Expand/> {lang === "es" ? "Ver restaurante" : "View restaurant"}</span></button></section>
+      <section id="restaurante" className="restaurant section-pad"><div className="restaurant-copy"><p className="kicker">{lang === "es" ? "Restaurante con vista" : "Restaurant with a view"}</p><h2>{t.restaurantTitle}</h2><p>{t.restaurantText}</p></div><button className="restaurant-photo" onClick={() => openGallery("restaurant", 1, "restaurant_section")}><Image src="/images/restaurant-02.webp" alt="Restaurante con vista al atardecer" fill sizes="(max-width: 800px) 100vw, 60vw" /><span><Expand/> {lang === "es" ? "Ver restaurante" : "View restaurant"}</span></button></section>
 
       <section id="galeria" className="gallery-section section-pad">
         <div className="gallery-heading"><div><p className="kicker">{t.galleryKicker}</p><h2>{t.galleryTitle}</h2></div><p>{t.galleryText}</p></div>
-        <Tabs value={category} onValueChange={(value) => { setCategory(value as "all" | Category); setActive(null); }}><TabsList className="gallery-tabs">{(["all", "penthouse", "amenities", "restaurant", "building"] as const).map((value, i) => <TabsTrigger value={value} key={value}>{t.tabs[i]}</TabsTrigger>)}</TabsList></Tabs>
-        <div className="photo-grid">{filtered.map((item, index) => <button className={`gallery-card ${index % 9 === 0 ? "featured" : ""}`} key={item.src} onClick={() => setActive(index)} aria-label={`${lang === "es" ? "Abrir" : "Open"} ${item[lang]}`}><Image src={item.src} alt={item[lang]} fill quality={88} sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" /><span className="gallery-overlay"><b>{item[lang]}</b><Expand/></span></button>)}</div>
+        <Tabs value={category} onValueChange={(value) => { setCategory(value as "all" | Category); setActive(null); trackEvent("gallery_filter", { gallery_category: value, language: lang }); }}><TabsList className="gallery-tabs">{(["all", "penthouse", "amenities", "restaurant", "building"] as const).map((value, i) => <TabsTrigger value={value} key={value}>{t.tabs[i]}</TabsTrigger>)}</TabsList></Tabs>
+        <div className="photo-grid">{filtered.map((item, index) => <button className={`gallery-card ${index % 9 === 0 ? "featured" : ""}`} key={item.src} onClick={() => { setActive(index); trackEvent("gallery_open", { gallery_category: item.category, image_index: index + 1, source: "gallery_grid", language: lang }, "ViewContent"); }} aria-label={`${lang === "es" ? "Abrir" : "Open"} ${item[lang]}`}><Image src={item.src} alt={item[lang]} fill quality={88} sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" /><span className="gallery-overlay"><b>{item[lang]}</b><Expand/></span></button>)}</div>
       </section>
 
-      <section id="contacto" className="final-cta"><Image src="/images/amenity-05.webp" alt="Atardecer frente al océano" fill quality={94} sizes="100vw" /><div className="final-shade"/><div className="final-content"><p className="kicker light">{t.finalKicker}</p><h2>{t.finalTitle}</h2><p>{t.finalText}</p><a className="button button-coral" href={whatsapp} target="_blank" rel="noreferrer"><MessageCircle/>{t.quote}</a><small>WhatsApp · +593 98 833 5552</small></div></section>
+      <section id="contacto" className="final-cta"><Image src="/images/amenity-05.webp" alt="Atardecer frente al océano" fill quality={94} sizes="100vw" /><div className="final-shade"/><div className="final-content"><p className="kicker light">{t.finalKicker}</p><h2>{t.finalTitle}</h2><p>{t.finalText}</p><a className="button button-coral" href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackLead("final_cta")}><MessageCircle/>{t.quote}</a><small>WhatsApp · +593 98 833 5552</small></div></section>
 
-      <footer><div className="footer-brand"><span className="brand-mark">PA</span><span><strong>Penthouse Playa Azul</strong><small><MapPin/> Tonsupa · Ecuador</small></span></div><div className="footer-links"><a href="#penthouse">Penthouse</a><a href="#amenidades">{t.nav[2]}</a><a href="#galeria">{t.nav[3]}</a></div><a className="footer-contact" href={whatsapp} target="_blank" rel="noreferrer"><MessageCircle/> +593 98 833 5552</a><p className="copyright">© 2026 Penthouse Playa Azul</p></footer>
-      <a className="float-whatsapp" href={whatsapp} target="_blank" rel="noreferrer" aria-label="Consultar disponibilidad por WhatsApp"><MessageCircle/><span>{t.reserve}</span></a>
+      <footer><div className="footer-brand"><span className="brand-mark">PA</span><span><strong>Penthouse Playa Azul</strong><small><MapPin/> Tonsupa · Ecuador</small></span></div><div className="footer-links"><a href="#penthouse">Penthouse</a><a href="#amenidades">{t.nav[2]}</a><a href="#galeria">{t.nav[3]}</a></div><a className="footer-contact" href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackLead("footer")}><MessageCircle/> +593 98 833 5552</a><p className="copyright">© 2026 Penthouse Playa Azul</p></footer>
+      <a className="float-whatsapp" href={whatsapp} target="_blank" rel="noreferrer" aria-label="Consultar disponibilidad por WhatsApp" onClick={() => trackLead("floating_button")}><MessageCircle/><span>{t.reserve}</span></a>
       <a className={`journey-guide ${journey.visible ? "visible" : ""}`} href={`#${journeyIds[journey.index]}`} aria-label={`${t.continue}: ${t.nextStops[journey.index]}`}>
         <span className="journey-progress" style={{ "--journey-progress": `${journey.progress * 360}deg` } as React.CSSProperties}><ArrowDown/></span>
         <span className="journey-copy"><small>{t.continue}</small><strong>{t.nextStops[journey.index]}</strong></span>
