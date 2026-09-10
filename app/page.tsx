@@ -61,7 +61,7 @@ export default function Home() {
   const [category, setCategory] = useState<"all" | Category>("all");
   const [active, setActive] = useState<number | null>(null);
   const [menu, setMenu] = useState(false);
-  const [journey, setJourney] = useState({ index: 0, progress: 0, visible: true });
+  const [journey, setJourney] = useState({ currentIndex: 0, targetIndex: 0, progress: 0, visible: true });
   const trackedScrollDepths = useRef(new Set<number>());
   const t = copy[lang];
   const filtered = useMemo(() => category === "all" ? gallery : gallery.filter((item) => item.category === category), [category]);
@@ -74,13 +74,22 @@ export default function Home() {
   useEffect(() => {
     const stops = ["experiencia", "penthouse", "amenidades", "restaurante", "galeria", "contacto"];
     const updateJourney = () => {
-      const viewportMark = window.scrollY + window.innerHeight * 0.58;
-      const nextIndex = stops.findIndex((id) => {
-        const element = document.getElementById(id);
-        return element ? element.offsetTop > viewportMark : false;
+      const viewportMark = window.innerHeight * 0.5;
+      const sections = stops.map((id) => document.getElementById(id));
+      let currentIndex = sections.findIndex((element) => {
+        if (!element) return false;
+        const rect = element.getBoundingClientRect();
+        return rect.top <= viewportMark && rect.bottom > viewportMark;
       });
+      if (currentIndex === -1) {
+        currentIndex = sections.reduce((latest, element, index) => {
+          return element && element.getBoundingClientRect().top <= viewportMark ? index : latest;
+        }, -1);
+      }
+      const displayIndex = currentIndex === -1 ? 0 : currentIndex;
+      const targetIndex = currentIndex === -1 ? 0 : Math.min(currentIndex + 1, stops.length - 1);
       const maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-      setJourney({ index: nextIndex === -1 ? stops.length - 1 : nextIndex, progress: Math.min(1, window.scrollY / maxScroll), visible: nextIndex !== -1 && nextIndex < stops.length - 1 });
+      setJourney({ currentIndex: displayIndex, targetIndex, progress: Math.min(1, window.scrollY / maxScroll), visible: currentIndex < stops.length - 1 });
     };
     updateJourney();
     window.addEventListener("scroll", updateJourney, { passive: true });
@@ -159,9 +168,9 @@ export default function Home() {
 
       <footer><div className="footer-brand"><span className="brand-mark">PA</span><span><strong>Penthouse Playa Azul</strong><small><MapPin/> Tonsupa · Ecuador</small></span></div><div className="footer-links"><a href="#penthouse">Penthouse</a><a href="#amenidades">{t.nav[2]}</a><a href="#galeria">{t.nav[3]}</a></div><a className="footer-contact" href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackLead("footer")}><MessageCircle/> +593 98 833 5552</a><p className="copyright">© 2026 Penthouse Playa Azul</p></footer>
       <a className="float-whatsapp" href={whatsapp} target="_blank" rel="noreferrer" aria-label="Consultar disponibilidad por WhatsApp" onClick={() => trackLead("floating_button")}><MessageCircle/><span>{t.reserve}</span></a>
-      <a className={`journey-guide ${journey.visible ? "visible" : ""}`} href={`#${journeyIds[journey.index]}`} aria-label={`${t.continue}: ${t.nextStops[journey.index]}`}>
+      <a className={`journey-guide ${journey.visible ? "visible" : ""}`} href={`#${journeyIds[journey.targetIndex]}`} aria-label={`${lang === "es" ? "Ir a" : "Go to"}: ${t.nextStops[journey.targetIndex]}`}>
         <span className="journey-progress" style={{ "--journey-progress": `${journey.progress * 360}deg` } as React.CSSProperties}><ArrowDown/></span>
-        <span className="journey-copy"><small>{t.continue}</small><strong>{t.nextStops[journey.index]}</strong></span>
+        <span className="journey-copy"><small>{t.continue}</small><strong>{t.nextStops[journey.currentIndex]}</strong></span>
       </a>
 
       <Dialog open={active !== null} onOpenChange={(open) => !open && setActive(null)}><DialogContent className="lightbox" showCloseButton={false}><DialogTitle className="sr-only">{current?.[lang] ?? "Galería"}</DialogTitle>{current && <div className="lightbox-image"><Image src={current.src} alt={current[lang]} fill quality={96} sizes="100vw" /></div>}<button className="lightbox-close" onClick={() => setActive(null)} aria-label="Cerrar"><X/></button><button className="lightbox-prev" onClick={() => move(-1)} aria-label="Anterior"><ArrowLeft/></button><button className="lightbox-next" onClick={() => move(1)} aria-label="Siguiente"><ArrowRight/></button><div className="lightbox-caption"><span>{current?.[lang]}</span><small>{active !== null ? active + 1 : 0} / {filtered.length}</small></div></DialogContent></Dialog>
