@@ -38,23 +38,27 @@ const gallery: GalleryImage[] = [
 
 const copy = {
   es: {
-    nav: ["Experiencia", "Penthouse", "Amenidades", "Galería"], available: "Arriendo vacacional · Tonsupa, Ecuador", titleA: "Tu lugar frente", titleB: "al Pacífico.",
+    nav: ["Experiencia", "Penthouse", "Amenidades", "Galería", "Ubicación"], available: "Arriendo vacacional · Tonsupa, Ecuador", titleA: "Tu lugar frente", titleB: "al Pacífico.",
     intro: "Un penthouse dúplex donde el océano entra por cada ventana. Despierta con la vista, baja directo a la playa y termina el día en tu jacuzzi privado.", reserve: "Consultar disponibilidad", explore: "Vivir la experiencia", scroll: "Descubre el penthouse",
     storyKicker: "Playa Azul · frente al mar", storyTitle: "Aquí, las vacaciones empiezan antes de llegar.", storyText: "Espacios amplios, luz natural y una terraza privada suspendida sobre el océano. Todo está listo para que vengas con tu familia o amigos y te dediques únicamente a disfrutar.", featureTitle: "Un dúplex diseñado para disfrutar sin horarios",
     galleryKicker: "58 fotografías reales", galleryTitle: "Recorre cada espacio", galleryText: "Abre cualquier fotografía y navega la experiencia en pantalla completa.", tabs: ["Todo", "Penthouse", "Amenidades", "Restaurante", "Edificio"],
     amenitiesKicker: "Todo dentro del complejo", amenitiesTitle: "Más que hospedarte: vivir Playa Azul", restaurantTitle: "Atardeceres que también se saborean.", restaurantText: "El restaurante del complejo te permite disfrutar sin salir: una comida tranquila, el sonido del mar y el sol cayendo sobre el Pacífico.",
-    finalKicker: "Tu próxima escapada", finalTitle: "El mar ya está listo. ¿Y tú?", finalText: "Escríbenos con tus fechas y número de huéspedes. Confirmaremos disponibilidad y tarifa directamente por WhatsApp.", quote: "Quiero consultar fechas", continue: "Sigue descubriendo", nextStops: ["La experiencia", "El penthouse", "Las amenidades", "El restaurante", "La galería", "Tu próxima escapada"],
+    locationKicker: "Frente al Pacífico", locationTitle: "Tu escapada está en Tonsupa.", locationText: "Penthouse Playa Azul está en Edificio Deymar, con acceso directo a la playa y cerca de todo lo necesario para disfrutar tu estadía.", directions: "Cómo llegar",
+    finalKicker: "Tu próxima escapada", finalTitle: "El mar ya está listo. ¿Y tú?", finalText: "Escríbenos con tus fechas y número de huéspedes. Confirmaremos disponibilidad y tarifa directamente por WhatsApp.", quote: "Quiero consultar fechas", continue: "Sigue descubriendo", nextStops: ["La experiencia", "El penthouse", "Las amenidades", "El restaurante", "La galería", "La ubicación", "Tu próxima escapada"],
   },
   en: {
-    nav: ["Experience", "Penthouse", "Amenities", "Gallery"], available: "Vacation rental · Tonsupa, Ecuador", titleA: "Your place on", titleB: "the Pacific.",
+    nav: ["Experience", "Penthouse", "Amenities", "Gallery", "Location"], available: "Vacation rental · Tonsupa, Ecuador", titleA: "Your place on", titleB: "the Pacific.",
     intro: "A duplex penthouse where the ocean fills every window. Wake up to the view, walk straight to the beach, and end the day in your private jacuzzi.", reserve: "Check availability", explore: "Live the experience", scroll: "Discover the penthouse",
     storyKicker: "Playa Azul · oceanfront", storyTitle: "Here, your vacation begins before you arrive.", storyText: "Open spaces, natural light and a private terrace suspended above the ocean. Everything is ready for you to arrive with family or friends and simply enjoy.", featureTitle: "A duplex designed for unhurried days",
     galleryKicker: "58 real photographs", galleryTitle: "Explore every space", galleryText: "Open any photograph and navigate the full-screen experience.", tabs: ["All", "Penthouse", "Amenities", "Restaurant", "Building"],
     amenitiesKicker: "Everything within the complex", amenitiesTitle: "More than a stay: experience Playa Azul", restaurantTitle: "Sunsets you can savor.", restaurantText: "The on-site restaurant lets you enjoy everything without leaving: a relaxed meal, the sound of the sea, and the sun setting over the Pacific.",
-    finalKicker: "Your next escape", finalTitle: "The ocean is ready. Are you?", finalText: "Send us your dates and number of guests. We will confirm availability and rates directly on WhatsApp.", quote: "Check my dates", continue: "Keep exploring", nextStops: ["The experience", "The penthouse", "The amenities", "The restaurant", "The gallery", "Your next escape"],
+    locationKicker: "On the Pacific", locationTitle: "Your escape is in Tonsupa.", locationText: "Penthouse Playa Azul is located in Edificio Deymar, with direct beach access and everything you need nearby for an effortless stay.", directions: "Get directions",
+    finalKicker: "Your next escape", finalTitle: "The ocean is ready. Are you?", finalText: "Send us your dates and number of guests. We will confirm availability and rates directly on WhatsApp.", quote: "Check my dates", continue: "Keep exploring", nextStops: ["The experience", "The penthouse", "The amenities", "The restaurant", "The gallery", "The location", "Your next escape"],
   },
 };
 const whatsapp = "https://wa.me/593988335552?text=Hola%2C%20quiero%20consultar%20disponibilidad%20del%20Penthouse%20Playa%20Azul.%20Llegada%3A%20____%20Salida%3A%20____%20Hu%C3%A9spedes%3A%20____";
+const mapEmbed = "https://www.google.com/maps?ll=0.901927,-79.799988&z=17&t=m&hl=es-US&gl=US&mapclient=embed&cid=4599314178779744198&output=embed";
+const directions = "https://www.google.com/maps/dir/?api=1&destination=0.901927,-79.799988";
 
 export default function Home() {
   const [lang, setLang] = useState<"es" | "en">("es");
@@ -72,7 +76,7 @@ export default function Home() {
     window.addEventListener("keydown", handler); return () => window.removeEventListener("keydown", handler);
   }, [active, filtered.length]);
   useEffect(() => {
-    const stops = ["experiencia", "penthouse", "amenidades", "restaurante", "galeria", "contacto"];
+    const stops = ["experiencia", "penthouse", "amenidades", "restaurante", "galeria", "ubicacion", "contacto"];
     const updateJourney = () => {
       const viewportMark = window.innerHeight * 0.5;
       const sections = stops.map((id) => document.getElementById(id));
@@ -111,7 +115,7 @@ export default function Home() {
     return () => window.removeEventListener("scroll", measureScroll);
   }, []);
   const move = (direction: number) => setActive((value) => value === null ? 0 : (value + direction + filtered.length) % filtered.length);
-  const journeyIds = ["experiencia", "penthouse", "amenidades", "restaurante", "galeria", "contacto"];
+  const journeyIds = ["experiencia", "penthouse", "amenidades", "restaurante", "galeria", "ubicacion", "contacto"];
   const trackLead = (location: string) => trackEvent("generate_lead", { lead_source: "whatsapp", cta_location: location, language: lang }, "Lead");
   const openGallery = (nextCategory: Category, index: number, source: string) => {
     setCategory(nextCategory);
@@ -123,7 +127,7 @@ export default function Home() {
     <main>
       <header className="site-header">
         <a className="brand" href="#inicio" aria-label="Penthouse Playa Azul, inicio"><span className="brand-mark">PA</span><span>Penthouse <em>Playa Azul</em></span></a>
-        <nav className={menu ? "nav open" : "nav"} aria-label="Navegación principal">{["experiencia", "penthouse", "amenidades", "galeria"].map((id, i) => <a key={id} href={`#${id}`} onClick={() => setMenu(false)}>{t.nav[i]}</a>)}</nav>
+        <nav className={menu ? "nav open" : "nav"} aria-label="Navegación principal">{["experiencia", "penthouse", "amenidades", "galeria", "ubicacion"].map((id, i) => <a key={id} href={`#${id}`} onClick={() => setMenu(false)}>{t.nav[i]}</a>)}</nav>
         <div className="header-actions"><button className="lang" onClick={() => { const nextLang = lang === "es" ? "en" : "es"; setLang(nextLang); trackEvent("language_change", { language: nextLang }); }} aria-label="Cambiar idioma">{lang === "es" ? "EN" : "ES"}</button><a className="nav-cta" href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackLead("header")}>{t.reserve}<ChevronRight size={16}/></a><button className="menu-button" onClick={() => setMenu(!menu)} aria-label="Abrir menú">{menu ? <X/> : <Menu/>}</button></div>
       </header>
 
@@ -164,9 +168,22 @@ export default function Home() {
         <div className="photo-grid">{filtered.map((item, index) => <button className={`gallery-card ${index % 9 === 0 ? "featured" : ""}`} key={item.src} onClick={() => { setActive(index); trackEvent("gallery_open", { gallery_category: item.category, image_index: index + 1, source: "gallery_grid", language: lang }, "ViewContent"); }} aria-label={`${lang === "es" ? "Abrir" : "Open"} ${item[lang]}`}><Image src={item.src} alt={item[lang]} fill quality={88} sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" /><span className="gallery-overlay"><b>{item[lang]}</b><Expand/></span></button>)}</div>
       </section>
 
+      <section id="ubicacion" className="location-section section-pad">
+        <div className="location-copy">
+          <p className="kicker">{t.locationKicker}</p>
+          <h2>{t.locationTitle}</h2>
+          <p>{t.locationText}</p>
+          <div className="location-address"><MapPin/><span><strong>Edificio Deymar</strong><small>Tonsupa · Esmeraldas · Ecuador</small></span></div>
+          <a className="button location-button" href={directions} target="_blank" rel="noreferrer" onClick={() => trackEvent("directions_click", { cta_location: "location_section", language: lang })}><MapPin size={19}/>{t.directions}<ArrowRight size={18}/></a>
+        </div>
+        <div className="map-frame">
+          <iframe src={mapEmbed} title={lang === "es" ? "Ubicación de Penthouse Playa Azul en Google Maps" : "Penthouse Playa Azul location on Google Maps"} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
+        </div>
+      </section>
+
       <section id="contacto" className="final-cta"><Image src="/images/penthouse-45.webp" alt="Terraza privada del penthouse sobre el océano al atardecer" fill quality={94} sizes="100vw" /><div className="final-shade"/><div className="final-content"><p className="kicker light">{t.finalKicker}</p><h2>{t.finalTitle}</h2><p>{t.finalText}</p><a className="button button-coral" href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackLead("final_cta")}><MessageCircle/>{t.quote}</a><small>WhatsApp · +593 98 833 5552</small></div></section>
 
-      <footer><div className="footer-brand"><span className="brand-mark">PA</span><span><strong>Penthouse Playa Azul</strong><small><MapPin/> Tonsupa · Ecuador</small></span></div><div className="footer-links"><a href="#penthouse">Penthouse</a><a href="#amenidades">{t.nav[2]}</a><a href="#galeria">{t.nav[3]}</a></div><a className="footer-contact" href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackLead("footer")}><MessageCircle/> +593 98 833 5552</a><p className="copyright">© 2026 Penthouse Playa Azul</p></footer>
+      <footer><div className="footer-brand"><span className="brand-mark">PA</span><span><strong>Penthouse Playa Azul</strong><small><MapPin/> Tonsupa · Ecuador</small></span></div><div className="footer-links"><a href="#penthouse">Penthouse</a><a href="#amenidades">{t.nav[2]}</a><a href="#galeria">{t.nav[3]}</a><a href="#ubicacion">{t.nav[4]}</a></div><a className="footer-contact" href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackLead("footer")}><MessageCircle/> +593 98 833 5552</a><p className="copyright">© 2026 Penthouse Playa Azul</p></footer>
       <a className="float-whatsapp" href={whatsapp} target="_blank" rel="noreferrer" aria-label="Consultar disponibilidad por WhatsApp" onClick={() => trackLead("floating_button")}><MessageCircle/><span>{t.reserve}</span></a>
       <a className={`journey-guide ${journey.visible ? "visible" : ""}`} href={`#${journeyIds[journey.targetIndex]}`} aria-label={`${lang === "es" ? "Ir a" : "Go to"}: ${t.nextStops[journey.targetIndex]}`}>
         <span className="journey-progress" style={{ "--journey-progress": `${journey.progress * 360}deg` } as React.CSSProperties}><ArrowDown/></span>
