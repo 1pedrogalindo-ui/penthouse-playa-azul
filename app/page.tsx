@@ -38,22 +38,36 @@ const gallery: GalleryImage[] = [
 
 const copy = {
   es: {
-    nav: ["Experiencia", "Penthouse", "Amenidades", "Galería", "Ubicación"], available: "Arriendo vacacional · Tonsupa, Ecuador", titleA: "Tu lugar frente", titleB: "al Pacífico.",
+    nav: ["Experiencia", "Penthouse", "Amenidades", "Galería", "Ubicación"], available: "Penthouse en Tonsupa · Alquiler vacacional frente al mar", titleA: "Tu lugar frente", titleB: "al Pacífico.",
     intro: "Un penthouse dúplex donde el océano entra por cada ventana. Despierta con la vista, baja directo a la playa y termina el día en tu jacuzzi privado.", reserve: "Consultar disponibilidad", explore: "Vivir la experiencia", scroll: "Descubre el penthouse",
     storyKicker: "Playa Azul · frente al mar", storyTitle: "Aquí, las vacaciones empiezan antes de llegar.", storyText: "Espacios amplios, luz natural y una terraza privada suspendida sobre el océano. Todo está listo para que vengas con tu familia o amigos y te dediques únicamente a disfrutar.", featureTitle: "Un dúplex diseñado para disfrutar sin horarios",
     galleryKicker: "58 fotografías reales", galleryTitle: "Recorre cada espacio", galleryText: "Abre cualquier fotografía y navega la experiencia en pantalla completa.", tabs: ["Todo", "Penthouse", "Amenidades", "Restaurante", "Edificio"],
     amenitiesKicker: "Todo dentro del complejo", amenitiesTitle: "Más que hospedarte: vivir Playa Azul", restaurantTitle: "Atardeceres que también se saborean.", restaurantText: "El restaurante del complejo te permite disfrutar sin salir: una comida tranquila, el sonido del mar y el sol cayendo sobre el Pacífico.",
     locationKicker: "Frente al Pacífico", locationTitle: "Tu escapada está en Tonsupa.", locationText: "Penthouse Playa Azul está en Edificio Deymar, con acceso directo a la playa y cerca de todo lo necesario para disfrutar tu estadía.", directions: "Cómo llegar",
-    finalKicker: "Tu próxima escapada", finalTitle: "El mar ya está listo. ¿Y tú?", finalText: "Escríbenos con tus fechas y número de huéspedes. Confirmaremos disponibilidad y tarifa directamente por WhatsApp.", quote: "Quiero consultar fechas", continue: "Sigue descubriendo", nextStops: ["La experiencia", "El penthouse", "Las amenidades", "El restaurante", "La galería", "La ubicación", "Tu próxima escapada"],
+    faqKicker: "Antes de reservar", faqTitle: "Preguntas frecuentes", faqs: [
+      ["¿Dónde está ubicado el Penthouse Playa Azul?", "Está en el Edificio Deymar, sector Playa Azul, Tonsupa, Esmeraldas, frente al océano Pacífico."],
+      ["¿Cuántos dormitorios y baños tiene?", "Es un penthouse dúplex totalmente equipado con 3 dormitorios y 3 baños."],
+      ["¿El jacuzzi es privado?", "Sí. El jacuzzi es de uso exclusivo del penthouse y está en una terraza con vista al mar."],
+      ["¿Qué amenidades incluye el complejo?", "Piscina frente al mar, acceso directo y carpas en la playa, canchas deportivas, sala de ping-pong y restaurante."],
+      ["¿Cómo consulto disponibilidad?", "Escríbenos por WhatsApp con tus fechas y número de huéspedes. Te confirmaremos disponibilidad y tarifa directamente."],
+    ],
+    finalKicker: "Tu próxima escapada", finalTitle: "El mar ya está listo. ¿Y tú?", finalText: "Escríbenos con tus fechas y número de huéspedes. Confirmaremos disponibilidad y tarifa directamente por WhatsApp.", quote: "Quiero consultar fechas", continue: "Sigue descubriendo", nextStops: ["La experiencia", "El penthouse", "Las amenidades", "El restaurante", "La galería", "La ubicación", "Preguntas frecuentes", "Tu próxima escapada"],
   },
   en: {
-    nav: ["Experience", "Penthouse", "Amenities", "Gallery", "Location"], available: "Vacation rental · Tonsupa, Ecuador", titleA: "Your place on", titleB: "the Pacific.",
+    nav: ["Experience", "Penthouse", "Amenities", "Gallery", "Location"], available: "Tonsupa penthouse · Oceanfront vacation rental", titleA: "Your place on", titleB: "the Pacific.",
     intro: "A duplex penthouse where the ocean fills every window. Wake up to the view, walk straight to the beach, and end the day in your private jacuzzi.", reserve: "Check availability", explore: "Live the experience", scroll: "Discover the penthouse",
     storyKicker: "Playa Azul · oceanfront", storyTitle: "Here, your vacation begins before you arrive.", storyText: "Open spaces, natural light and a private terrace suspended above the ocean. Everything is ready for you to arrive with family or friends and simply enjoy.", featureTitle: "A duplex designed for unhurried days",
     galleryKicker: "58 real photographs", galleryTitle: "Explore every space", galleryText: "Open any photograph and navigate the full-screen experience.", tabs: ["All", "Penthouse", "Amenities", "Restaurant", "Building"],
     amenitiesKicker: "Everything within the complex", amenitiesTitle: "More than a stay: experience Playa Azul", restaurantTitle: "Sunsets you can savor.", restaurantText: "The on-site restaurant lets you enjoy everything without leaving: a relaxed meal, the sound of the sea, and the sun setting over the Pacific.",
     locationKicker: "On the Pacific", locationTitle: "Your escape is in Tonsupa.", locationText: "Penthouse Playa Azul is located in Edificio Deymar, with direct beach access and everything you need nearby for an effortless stay.", directions: "Get directions",
-    finalKicker: "Your next escape", finalTitle: "The ocean is ready. Are you?", finalText: "Send us your dates and number of guests. We will confirm availability and rates directly on WhatsApp.", quote: "Check my dates", continue: "Keep exploring", nextStops: ["The experience", "The penthouse", "The amenities", "The restaurant", "The gallery", "The location", "Your next escape"],
+    faqKicker: "Before you book", faqTitle: "Frequently asked questions", faqs: [
+      ["Where is Penthouse Playa Azul located?", "It is in Edificio Deymar, Playa Azul, Tonsupa, Esmeraldas, directly on Ecuador's Pacific coast."],
+      ["How many bedrooms and bathrooms are there?", "It is a fully equipped duplex penthouse with 3 bedrooms and 3 bathrooms."],
+      ["Is the jacuzzi private?", "Yes. The jacuzzi is exclusively for penthouse guests and sits on an ocean-view terrace."],
+      ["Which amenities are included?", "An oceanfront pool, direct beach access and sunshades, sports courts, a ping-pong room and an on-site restaurant."],
+      ["How do I check availability?", "Message us on WhatsApp with your dates and number of guests. We will confirm availability and the direct rate."],
+    ],
+    finalKicker: "Your next escape", finalTitle: "The ocean is ready. Are you?", finalText: "Send us your dates and number of guests. We will confirm availability and rates directly on WhatsApp.", quote: "Check my dates", continue: "Keep exploring", nextStops: ["The experience", "The penthouse", "The amenities", "The restaurant", "The gallery", "The location", "Frequently asked questions", "Your next escape"],
   },
 };
 const whatsapp = "https://wa.me/593988335552?text=Hola%2C%20quiero%20consultar%20disponibilidad%20del%20Penthouse%20Playa%20Azul.%20Llegada%3A%20____%20Salida%3A%20____%20Hu%C3%A9spedes%3A%20____";
@@ -76,7 +90,10 @@ export default function Home() {
     window.addEventListener("keydown", handler); return () => window.removeEventListener("keydown", handler);
   }, [active, filtered.length]);
   useEffect(() => {
-    const stops = ["experiencia", "penthouse", "amenidades", "restaurante", "galeria", "ubicacion", "contacto"];
+    document.documentElement.lang = lang === "es" ? "es-EC" : "en";
+  }, [lang]);
+  useEffect(() => {
+    const stops = ["experiencia", "penthouse", "amenidades", "restaurante", "galeria", "ubicacion", "preguntas", "contacto"];
     const updateJourney = () => {
       const viewportMark = window.innerHeight * 0.5;
       const sections = stops.map((id) => document.getElementById(id));
@@ -115,12 +132,12 @@ export default function Home() {
     return () => window.removeEventListener("scroll", measureScroll);
   }, []);
   const move = (direction: number) => setActive((value) => value === null ? 0 : (value + direction + filtered.length) % filtered.length);
-  const journeyIds = ["experiencia", "penthouse", "amenidades", "restaurante", "galeria", "ubicacion", "contacto"];
+  const journeyIds = ["experiencia", "penthouse", "amenidades", "restaurante", "galeria", "ubicacion", "preguntas", "contacto"];
   const trackLead = (location: string) => trackEvent("generate_lead", { lead_source: "whatsapp", cta_location: location, language: lang }, "Lead");
   const openGallery = (nextCategory: Category, index: number, source: string) => {
     setCategory(nextCategory);
     setActive(index);
-    trackEvent("gallery_open", { gallery_category: nextCategory, image_index: index + 1, source, language: lang }, "ViewContent");
+    trackEvent("gallery_open", { gallery_category: nextCategory, image_index: index + 1, gallery_location: source, language: lang }, "ViewContent");
   };
 
   return (
@@ -165,7 +182,7 @@ export default function Home() {
       <section id="galeria" className="gallery-section section-pad">
         <div className="gallery-heading"><div><p className="kicker">{t.galleryKicker}</p><h2>{t.galleryTitle}</h2></div><p>{t.galleryText}</p></div>
         <Tabs value={category} onValueChange={(value) => { setCategory(value as "all" | Category); setActive(null); trackEvent("gallery_filter", { gallery_category: value, language: lang }); }}><TabsList className="gallery-tabs">{(["all", "penthouse", "amenities", "restaurant", "building"] as const).map((value, i) => <TabsTrigger value={value} key={value}>{t.tabs[i]}</TabsTrigger>)}</TabsList></Tabs>
-        <div className="photo-grid">{filtered.map((item, index) => <button className={`gallery-card ${index % 9 === 0 ? "featured" : ""}`} key={item.src} onClick={() => { setActive(index); trackEvent("gallery_open", { gallery_category: item.category, image_index: index + 1, source: "gallery_grid", language: lang }, "ViewContent"); }} aria-label={`${lang === "es" ? "Abrir" : "Open"} ${item[lang]}`}><Image src={item.src} alt={item[lang]} fill quality={88} sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" /><span className="gallery-overlay"><b>{item[lang]}</b><Expand/></span></button>)}</div>
+        <div className="photo-grid">{filtered.map((item, index) => <button className={`gallery-card ${index % 9 === 0 ? "featured" : ""}`} key={item.src} onClick={() => { setActive(index); trackEvent("gallery_open", { gallery_category: item.category, image_index: index + 1, gallery_location: "gallery_grid", language: lang }, "ViewContent"); }} aria-label={`${lang === "es" ? "Abrir" : "Open"} ${item[lang]}`}><Image src={item.src} alt={item[lang]} fill quality={88} sizes="(max-width: 640px) 50vw, (max-width: 1000px) 33vw, 25vw" /><span className="gallery-overlay"><b>{item[lang]}</b><Expand/></span></button>)}</div>
       </section>
 
       <section id="ubicacion" className="location-section section-pad">
@@ -179,6 +196,11 @@ export default function Home() {
         <div className="map-frame">
           <iframe src={mapEmbed} title={lang === "es" ? "Ubicación de Penthouse Playa Azul en Google Maps" : "Penthouse Playa Azul location on Google Maps"} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen />
         </div>
+      </section>
+
+      <section id="preguntas" className="faq-section section-pad">
+        <div className="faq-heading"><p className="kicker">{t.faqKicker}</p><h2>{t.faqTitle}</h2><p>{lang === "es" ? "Todo lo esencial para planificar tu alojamiento frente al mar en Tonsupa." : "Everything you need to plan your oceanfront stay in Tonsupa."}</p></div>
+        <div className="faq-list">{t.faqs.map(([question, answer], index) => <details key={question} open={index === 0}><summary>{question}<span>+</span></summary><p>{answer}</p></details>)}</div>
       </section>
 
       <section id="contacto" className="final-cta"><Image src="/images/penthouse-45.webp" alt="Terraza privada del penthouse sobre el océano al atardecer" fill quality={94} sizes="100vw" /><div className="final-shade"/><div className="final-content"><p className="kicker light">{t.finalKicker}</p><h2>{t.finalTitle}</h2><p>{t.finalText}</p><a className="button button-coral" href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackLead("final_cta")}><MessageCircle/>{t.quote}</a><small>WhatsApp · +593 98 833 5552</small></div></section>
