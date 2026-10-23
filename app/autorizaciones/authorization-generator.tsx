@@ -90,7 +90,7 @@ export function AuthorizationGenerator() {
       return;
     }
     setMessage("");
-    document.title = `Autorización PH1401 - ${form.guest.trim() || "Huésped"}`;
+    document.title = `DEYMAR | Autorización PH 1401 - ${form.guest.trim() || "Huésped"}`;
     window.print();
   }
 
