@@ -22,8 +22,9 @@ const content = {
     perNight: "por noche", checkIn: "Entrada", checkOut: "Salida", guests: "Huéspedes",
     summary: "Resumen de tu estadía", nights: "Noches", rate: "Tarifa por noche", total: "Total estimado",
     selectDates: "Selecciona fechas válidas para calcular el total.",
-    notice: "La solicitud no bloquea las fechas. Confirmaremos disponibilidad y la temporada aplicable por WhatsApp.",
-    submit: "Solicitar reserva por WhatsApp", invalid: "La fecha de salida debe ser posterior a la fecha de entrada.",
+    name: "Nombre completo", phone: "WhatsApp", email: "Correo (opcional)",
+    notice: "Registraremos tu solicitud y confirmaremos disponibilidad y tarifa final por WhatsApp.",
+    submit: "Enviar solicitud de reserva", invalid: "La fecha de salida debe ser posterior a la fecha de entrada.", sent: "Solicitud registrada. Abriremos WhatsApp para continuar.",
   },
   en: {
     kicker: "Direct booking · no middlemen",
@@ -37,8 +38,9 @@ const content = {
     perNight: "per night", checkIn: "Check-in", checkOut: "Check-out", guests: "Guests",
     summary: "Your stay summary", nights: "Nights", rate: "Nightly rate", total: "Estimated total",
     selectDates: "Select valid dates to calculate the total.",
-    notice: "This request does not hold the dates. We will confirm availability and the applicable season through WhatsApp.",
-    submit: "Request booking on WhatsApp", invalid: "Check-out must be after check-in.",
+    name: "Full name", phone: "WhatsApp", email: "Email (optional)",
+    notice: "We will register your request and confirm availability and the final rate through WhatsApp.",
+    submit: "Send booking request", invalid: "Check-out must be after check-in.", sent: "Request registered. We will open WhatsApp to continue.",
   },
 } as const;
 
@@ -68,7 +70,12 @@ export function BookingCalculator({ language }: { language: Language }) {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
+  const [status, setStatus] = useState("");
+  const [sending, setSending] = useState(false);
   const today = localInputDate();
 
   const nights = useMemo(() => {
@@ -80,10 +87,14 @@ export function BookingCalculator({ language }: { language: Language }) {
   const price = rates[season];
   const total = nights * price;
 
-  function submit(event: FormEvent) {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     if (nights < 1) { setError(t.invalid); return; }
-    setError("");
+    setError(""); setStatus(""); setSending(true);
+    const response = await fetch("/api/reservations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ guest_name:name, phone, email:email||null, check_in:checkIn, check_out:checkOut, guests, season, nightly_rate:price, total }) });
+    const result = await response.json(); setSending(false);
+    if (!response.ok) { setError(result.error || "No pudimos registrar la solicitud."); return; }
+    setStatus(t.sent);
     const seasonName = t.seasons[season][0];
     const message = language === "es"
       ? `Hola, quiero solicitar una reserva del Penthouse Playa Azul.\n\nEntrada: ${formatDate(checkIn, language)}\nSalida: ${formatDate(checkOut, language)}\nHuéspedes: ${guests}\nTemporada seleccionada: ${seasonName}\nTarifa: ${formatMoney(price, language)} por noche\nNoches: ${nights}\nTotal estimado: ${formatMoney(total, language)}\n\nPor favor, confírmame disponibilidad y tarifa final.`
@@ -111,6 +122,9 @@ export function BookingCalculator({ language }: { language: Language }) {
         </fieldset>
         <div className="booking-details">
           <div className="booking-fields">
+            <label><span>{t.name}</span><input type="text" value={name} onChange={(event)=>setName(event.target.value)} required /></label>
+            <label><span>{t.phone}</span><input type="tel" value={phone} onChange={(event)=>setPhone(event.target.value)} required /></label>
+            <label><span>{t.email}</span><input type="email" value={email} onChange={(event)=>setEmail(event.target.value)} /></label>
             <label><span><CalendarDays />{t.checkIn}</span><input type="date" min={today} value={checkIn} onChange={(event) => { setCheckIn(event.target.value); setError(""); }} required /></label>
             <label><span><CalendarDays />{t.checkOut}</span><input type="date" min={checkIn || today} value={checkOut} onChange={(event) => { setCheckOut(event.target.value); setError(""); }} required /></label>
             <label><span><Users />{t.guests}</span><input type="number" min="1" max="10" value={guests} onChange={(event) => setGuests(Math.max(1, Math.min(10, Number(event.target.value) || 1)))} required /></label>
@@ -124,7 +138,8 @@ export function BookingCalculator({ language }: { language: Language }) {
             <div className="booking-total"><span>{t.total}</span><strong>{nights ? formatMoney(total, language) : "—"}</strong></div>
             {!nights && !error && <p className="booking-helper">{t.selectDates}</p>}
             {error && <p className="booking-error" role="alert">{error}</p>}
-            <button className="booking-submit" type="submit"><MessageCircle />{t.submit}</button>
+            {status && <p className="booking-success" role="status">{status}</p>}
+            <button className="booking-submit" type="submit" disabled={sending}><MessageCircle />{sending ? (language === "es" ? "Enviando…" : "Sending…") : t.submit}</button>
             <p className="booking-notice">{t.notice}</p>
           </aside>
         </div>
