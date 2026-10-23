@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowDown, ArrowLeft, ArrowRight, BedDouble, Check, ChevronRight, Expand, MapPin, Menu, MessageCircle, Snowflake, Sparkles, Users, Waves, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, BedDouble, CalendarDays, Check, ChevronRight, Expand, MapPin, Menu, MessageCircle, Snowflake, Sparkles, Users, Waves, X } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trackEvent } from "@/components/analytics";
+import { BookingCalculator } from "@/components/booking-calculator";
 
 type Category = "penthouse" | "amenities" | "restaurant" | "building";
 type GalleryImage = { src: string; category: Category; es: string; en: string };
@@ -49,6 +50,7 @@ const copy = {
       ["¿Cuántos dormitorios y baños tiene?", "Es un penthouse dúplex totalmente equipado con 3 dormitorios y 3 baños."],
       ["¿El jacuzzi es privado?", "Sí. El jacuzzi es de uso exclusivo del penthouse y está en una terraza con vista al mar."],
       ["¿Qué amenidades incluye el complejo?", "Piscina frente al mar, acceso directo y carpas en la playa, canchas deportivas, sala de ping-pong y restaurante."],
+      ["¿Cuáles son las tarifas por noche?", "Temporada baja: $180, temporada media: $200 y temporada alta: $230. La tarifa aplicable y la disponibilidad se confirman según las fechas solicitadas."],
       ["¿Cómo consulto disponibilidad?", "Escríbenos por WhatsApp con tus fechas y número de huéspedes. Te confirmaremos disponibilidad y tarifa directamente."],
     ],
     finalKicker: "Tu próxima escapada", finalTitle: "El mar ya está listo. ¿Y tú?", finalText: "Escríbenos con tus fechas y número de huéspedes. Confirmaremos disponibilidad y tarifa directamente por WhatsApp.", quote: "Quiero consultar fechas", continue: "Sigue descubriendo", nextStops: ["La experiencia", "El penthouse", "Las amenidades", "El restaurante", "La galería", "La ubicación", "Preguntas frecuentes", "Tu próxima escapada"],
@@ -65,6 +67,7 @@ const copy = {
       ["How many bedrooms and bathrooms are there?", "It is a fully equipped duplex penthouse with 3 bedrooms and 3 bathrooms."],
       ["Is the jacuzzi private?", "Yes. The jacuzzi is exclusively for penthouse guests and sits on an ocean-view terrace."],
       ["Which amenities are included?", "An oceanfront pool, direct beach access and sunshades, sports courts, a ping-pong room and an on-site restaurant."],
+      ["What are the nightly rates?", "Low season: $180, mid season: $200 and high season: $230. The applicable rate and availability are confirmed for the requested dates."],
       ["How do I check availability?", "Message us on WhatsApp with your dates and number of guests. We will confirm availability and the direct rate."],
     ],
     finalKicker: "Your next escape", finalTitle: "The ocean is ready. Are you?", finalText: "Send us your dates and number of guests. We will confirm availability and rates directly on WhatsApp.", quote: "Check my dates", continue: "Keep exploring", nextStops: ["The experience", "The penthouse", "The amenities", "The restaurant", "The gallery", "The location", "Frequently asked questions", "Your next escape"],
@@ -145,15 +148,17 @@ export default function Home() {
       <header className="site-header">
         <a className="brand" href="#inicio" aria-label="Penthouse Playa Azul, inicio"><span className="brand-mark">PA</span><span>Penthouse <em>Playa Azul</em></span></a>
         <nav className={menu ? "nav open" : "nav"} aria-label="Navegación principal">{["experiencia", "penthouse", "amenidades", "galeria", "ubicacion"].map((id, i) => <a key={id} href={`#${id}`} onClick={() => setMenu(false)}>{t.nav[i]}</a>)}</nav>
-        <div className="header-actions"><button className="lang" onClick={() => { const nextLang = lang === "es" ? "en" : "es"; setLang(nextLang); trackEvent("language_change", { language: nextLang }); }} aria-label="Cambiar idioma">{lang === "es" ? "EN" : "ES"}</button><a className="nav-cta" href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackLead("header")}>{t.reserve}<ChevronRight size={16}/></a><button className="menu-button" onClick={() => setMenu(!menu)} aria-label="Abrir menú">{menu ? <X/> : <Menu/>}</button></div>
+        <div className="header-actions"><button className="lang" onClick={() => { const nextLang = lang === "es" ? "en" : "es"; setLang(nextLang); trackEvent("language_change", { language: nextLang }); }} aria-label="Cambiar idioma">{lang === "es" ? "EN" : "ES"}</button><a className="nav-cta" href="#reservar" onClick={() => trackEvent("cta_click", { cta_location: "header_booking", language: lang })}>{t.reserve}<ChevronRight size={16}/></a><button className="menu-button" onClick={() => setMenu(!menu)} aria-label="Abrir menú">{menu ? <X/> : <Menu/>}</button></div>
       </header>
 
       <section id="inicio" className="hero">
         <Image src="/images/penthouse-44.webp" alt="Jacuzzi privado del Penthouse Playa Azul frente al océano al atardecer" fill priority quality={95} sizes="100vw" className="hero-image" /><div className="hero-shade" />
-        <div className="hero-content"><p className="eyebrow"><span />{t.available}</p><h1>{t.titleA}<br/><i>{t.titleB}</i></h1><p className="hero-intro">{t.intro}</p><div className="hero-buttons"><a className="button button-coral" href={whatsapp} target="_blank" rel="noreferrer" onClick={() => trackLead("hero") }><MessageCircle size={19}/>{t.reserve}</a><a className="button button-glass" href="#experiencia" onClick={() => trackEvent("cta_click", { cta_location: "hero_experience", language: lang })}>{t.explore}<ArrowDown size={18}/></a></div></div>
+        <div className="hero-content"><p className="eyebrow"><span />{t.available}</p><h1>{t.titleA}<br/><i>{t.titleB}</i></h1><p className="hero-intro">{t.intro}</p><div className="hero-buttons"><a className="button button-coral" href="#reservar" onClick={() => trackEvent("cta_click", { cta_location: "hero_booking", language: lang })}><CalendarDays size={19}/>{t.reserve}</a><a className="button button-glass" href="#experiencia" onClick={() => trackEvent("cta_click", { cta_location: "hero_experience", language: lang })}>{t.explore}<ArrowDown size={18}/></a></div></div>
         <div className="hero-facts"><span><strong>3</strong> {lang === "es" ? "dormitorios" : "bedrooms"}</span><span><strong>3</strong> {lang === "es" ? "baños" : "bathrooms"}</span><span><strong>1</strong> jacuzzi {lang === "es" ? "privado" : "private"}</span><span><strong>∞</strong> {lang === "es" ? "vista al mar" : "ocean view"}</span></div>
         <a className="scroll-cue" href="#experiencia"><span>{t.scroll}</span><ArrowDown size={18}/></a>
       </section>
+
+      <BookingCalculator language={lang} />
 
       <section id="experiencia" className="story section-pad">
         <div className="story-copy"><p className="kicker">{t.storyKicker}</p><h2>{t.storyTitle}</h2><p>{t.storyText}</p><div className="micro-features"><span><Waves/> {lang === "es" ? "Acceso directo a la playa" : "Direct beach access"}</span><span><Snowflake/> {lang === "es" ? "Aire acondicionado" : "Air conditioning"}</span><span><Users/> {lang === "es" ? "Ideal para familias y grupos" : "Perfect for families and groups"}</span></div></div>
