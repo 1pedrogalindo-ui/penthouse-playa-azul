@@ -15,7 +15,8 @@ async function valid(token: string | undefined) {
 
 export async function proxy(request: NextRequest) {
   const host = request.headers.get("host")?.split(":")[0];
-  const path = request.nextUrl.pathname;
+  const rawPath = request.nextUrl.pathname;
+  const path = rawPath.length > 1 ? rawPath.replace(/\/+$/, "") : rawPath;
   if (host === "contabilidad.ph1401.com" && path === "/") return NextResponse.redirect(new URL("/contabilidad", request.url));
   const protectedPath = path.startsWith("/contabilidad") || (path.startsWith("/api/accounting") && path !== "/api/accounting/session");
   if (!protectedPath || path === "/contabilidad/acceso") return NextResponse.next();
