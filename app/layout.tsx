@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.ph1401.com"),
   title: "Penthouse en Tonsupa frente al mar | Playa Azul",
   description:
-    "Alquila un penthouse dúplex frente al mar en Playa Azul, Tonsupa: 3 dormitorios, 3 baños, jacuzzi privado, piscina, playa y reserva directa.",
+    "Reserva un penthouse dúplex frente al mar en Playa Azul, Tonsupa. Tarifas por noche desde $180, jacuzzi privado, piscina, 3 dormitorios y reserva directa.",
   keywords: [
     "penthouse Tonsupa",
     "alquiler vacacional Tonsupa",
@@ -15,6 +15,8 @@ export const metadata: Metadata = {
     "alojamiento en Tonsupa",
     "jacuzzi privado Tonsupa",
     "vacaciones en Esmeraldas",
+    "reservar penthouse Tonsupa",
+    "tarifas penthouse Tonsupa",
   ],
   applicationName: "Penthouse Playa Azul",
   creator: "Penthouse Playa Azul",
@@ -36,7 +38,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Penthouse en Tonsupa frente al mar | Playa Azul",
     description:
-      "Penthouse dúplex frente al mar en Tonsupa con jacuzzi privado, piscina, 3 dormitorios y acceso directo a la playa.",
+      "Reserva directa: penthouse dúplex frente al mar en Tonsupa desde $180 por noche, con jacuzzi privado, piscina y 3 dormitorios.",
     url: "https://www.ph1401.com",
     siteName: "Penthouse Playa Azul",
     images: [
@@ -82,7 +84,7 @@ const jsonLd = {
       name: "Penthouse Playa Azul",
       alternateName: "Penthouse frente al mar en Tonsupa",
       description:
-        "Penthouse dúplex de alquiler vacacional frente al mar en Playa Azul, Tonsupa, con 3 dormitorios, 3 baños, jacuzzi privado, piscina y acceso directo a la playa.",
+        "Penthouse dúplex de alquiler vacacional frente al mar en Playa Azul, Tonsupa, con tarifas de $180 en temporada baja, $200 en temporada media y $230 en temporada alta.",
       url: "https://www.ph1401.com/",
       mainEntityOfPage: { "@id": "https://www.ph1401.com/#website" },
       image: [
