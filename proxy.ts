@@ -3,6 +3,11 @@ import { AUTH_COOKIE, expectedSessionToken } from "@/lib/authorization-auth";
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const hostname = request.headers.get("host")?.split(":")[0];
+
+  if (hostname === "autorizaciones.ph1401.com" && pathname === "/") {
+    return NextResponse.redirect(new URL("/autorizaciones", request.url));
+  }
 
   if (pathname.startsWith("/autorizaciones/acceso") || pathname.startsWith("/api/autorizaciones/")) {
     return NextResponse.next();
@@ -21,4 +26,4 @@ export function proxy(request: NextRequest) {
   return response;
 }
 
-export const config = { matcher: ["/autorizaciones/:path*"] };
+export const config = { matcher: ["/", "/autorizaciones/:path*"] };
