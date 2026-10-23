@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const COOKIE = "ph1401_accounting";
+// El subdominio contable siempre conserva su acceso privado.
 
 async function valid(token: string | undefined) {
   const secret = process.env.ACCOUNTING_SESSION_SECRET || process.env.AUTHORIZATIONS_SESSION_SECRET || "";
