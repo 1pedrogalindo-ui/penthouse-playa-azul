@@ -22,7 +22,11 @@ export const metadata: Metadata = {
   creator: "Penthouse Playa Azul",
   publisher: "Penthouse Playa Azul",
   category: "Alquiler vacacional",
-  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
+  icons: {
+    icon: [{ url: "/images/ph1401-icon-64.png", type: "image/png", sizes: "64x64" }],
+    shortcut: "/images/ph1401-icon-64.png",
+    apple: [{ url: "/images/ph1401-apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   alternates: {
     canonical: "https://www.ph1401.com",
   },

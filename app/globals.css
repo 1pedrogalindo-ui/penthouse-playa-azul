@@ -38,3 +38,76 @@ footer{background:var(--deep);color:white;padding:50px clamp(20px,7vw,110px);dis
 .booking-section{scroll-margin-top:84px}.booking-section>.booking-heading,.booking-section>.property-step,.booking-section>.reservation-grid,.booking-section>.request-card{width:min(100%,960px);margin-left:auto;margin-right:auto}.booking-section>.booking-heading{margin-bottom:28px}.property-step{max-width:560px!important;margin-bottom:26px!important}.property-card{grid-template-columns:155px 1fr;gap:17px;border-width:1px;border-radius:11px}.property-photo{min-height:118px}.property-card h3{font-size:23px}.property-card>div:not(.property-photo){padding-right:18px}.reservation-grid{grid-template-columns:minmax(0,520px) minmax(0,414px);gap:26px;justify-content:center}.reservation-grid.dates-only{grid-template-columns:minmax(0,520px)}.booking-calendar{padding:22px 20px}.booking-calendar>header{grid-template-columns:36px 1fr 36px}.booking-calendar>header button{width:36px;height:36px}.booking-calendar>header strong{font-size:15px}.booking-calendar>p{margin:11px 0 17px;font-size:11px}.weekday-row span{padding-bottom:7px}.month-grid{gap:2px}.month-grid button{min-height:53px;border-radius:8px;gap:4px}.month-grid button span{font-size:12px}.month-grid button small{font-size:8px}.calendar-legend{gap:8px 12px;margin-top:15px}.clear-dates{margin-top:9px}.date-inputs{margin-top:13px;gap:12px}.date-inputs input{height:47px}.booking-info{margin-top:13px;padding:13px}.quote-card{padding:23px 22px}.quote-card h3{font-size:24px}.quote-facts{margin:17px 0}.night-list{max-height:205px}.night-list>div{padding:9px 0}.bracelet-card{margin-top:16px;padding:14px}.request-card{margin-top:24px;padding:27px}.request-card h3{font-size:29px;margin-bottom:19px}.request-fields{gap:14px}.request-fields input{height:48px}.consent{margin:20px 0}.request-submit{min-height:52px}
 @media(max-width:1000px){.booking-section>.booking-heading,.booking-section>.property-step,.booking-section>.reservation-grid,.booking-section>.request-card{width:min(100%,680px)}.reservation-grid,.reservation-grid.dates-only{grid-template-columns:1fr}.property-step{max-width:560px!important}}
 @media(max-width:640px){.booking-section{scroll-margin-top:72px}.property-card{grid-template-columns:1fr}.property-photo{min-height:165px}.property-card>div:not(.property-photo){padding:0 16px 16px}.booking-calendar{padding:16px 7px}.month-grid button{min-height:51px}.request-card{padding:21px 16px}}
+
+/* PH 1401 visual identity */
+.brand-mark{width:46px;height:46px;overflow:hidden;background:#082b3b;box-shadow:0 4px 16px rgba(0,0,0,.18)}
+.brand-mark img{width:100%;height:100%;object-fit:cover}
+.login-emblem{display:block;width:82px;height:82px;border-radius:50%;margin:0 0 22px;border:2px solid rgba(255,210,133,.75);box-shadow:0 12px 30px rgba(0,0,0,.28)}
+.accounting-logo>span{display:none}
+.accounting-logo>img{width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,210,133,.72);box-shadow:0 6px 18px rgba(0,0,0,.22);flex:0 0 auto}
+.accounting-logo small{font-size:9px}
+
+/* Reconciliation and report controls */
+.reconciliation-panel{background:#eef8f4;border:1px solid #cbe6dc;border-radius:16px;padding:22px;margin-bottom:18px}
+.reconciliation-panel>div:first-child p{margin:0 0 5px;color:#25705d;text-transform:uppercase;letter-spacing:.12em;font-size:9px;font-weight:800}
+.reconciliation-panel h2{font:400 24px Georgia;margin:0 0 18px}
+.check-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.check-card{display:grid;grid-template-columns:22px 1fr auto;gap:9px;align-items:center;background:white;border-radius:11px;padding:13px}
+.check-card svg{width:19px;color:#2c8a6f}.check-card span{font-size:11px;font-weight:700}.check-card small{display:block;color:#70847d;font-size:8px;font-weight:400;margin-top:4px}.check-card b{color:#24755f;font-size:11px}
+.reconciliation-note{margin:14px 0 0;color:#5c746c;font-size:10px}
+.expense-notes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}.expense-notes span{background:white;border:1px solid #e0e5e5;border-radius:14px;padding:17px;color:#718086;font-size:10px;line-height:1.45}.expense-notes b{display:block;color:#173742;font:400 23px Georgia;margin-bottom:6px}
+.report-card{min-height:190px}.report-actions{display:flex;gap:7px;margin-top:auto}.report-actions button{border:1px solid #cedbda;border-radius:8px;background:#f5f8f7;color:#245f5a;padding:8px 10px;display:flex;gap:5px;align-items:center;font-size:9px;font-weight:800}.report-actions button svg{width:14px}
+.print-report{display:none}
+
+/* Clear availability states */
+.month-grid button{border-color:#8bc4a8;background:#e9f7f0;color:#245d49}
+.month-grid button:not(:disabled):hover{border-color:#3f9b75;background:#d9f1e5}
+.month-grid button:disabled{cursor:not-allowed;opacity:1}
+.month-grid button.past{background:#f3f5f5;border-color:#e0e5e5;color:#9aa5a8;opacity:.52}
+.month-grid button.reserved{background:#f8d8d2;border-color:#d77868;color:#7e3025;opacity:1}
+.month-grid button.blocked{background:repeating-linear-gradient(135deg,#dfe5ec,#dfe5ec 7px,#d4dce5 7px,#d4dce5 14px);border-color:#7f8fa3;color:#354456;opacity:1}
+.month-grid button.outside{opacity:.22}
+.month-grid button.reserved:after{background:#c95546}.month-grid button.blocked:after{background:#596a7e}
+.month-grid button.selected{background:var(--deep)!important;color:white!important;border-color:var(--deep)!important;opacity:1}
+.month-grid button.in-range{background:#cdebe0;border-color:#73b79d;color:#174e3c}
+.calendar-legend i.open{background:#e9f7f0;border-color:#8bc4a8;border-radius:3px}.calendar-legend i.reserved{background:#f8d8d2;border-color:#d77868;border-radius:3px}.calendar-legend i.blocked{background:#7f8fa3;border-color:#7f8fa3;border-radius:2px}
+
+@media(max-width:980px){.accounting-logo>img{width:42px;height:42px}.check-grid,.expense-notes{grid-template-columns:1fr}}
+
+@media print{
+ @page{size:A4 portrait;margin:12mm}
+ body{background:white!important}.accounting-side,.accounting-main,.modal-backdrop{display:none!important}.accounting-app{display:block!important;background:white!important}.print-report{display:block!important;color:#142a34;font-family:Arial,sans-serif}
+ .print-report>header{display:flex;align-items:center;gap:16px;border-bottom:2px solid #0a3545;padding-bottom:14px;margin-bottom:18px}.print-report>header img{width:68px;height:68px;border-radius:50%;border:1px solid #d4a859}.print-report>header p{margin:0 0 4px;color:#507078;font-size:8px;text-transform:uppercase;letter-spacing:.12em}.print-report>header h1{font:400 25px Georgia;margin:0;color:#092d3d}.print-report>header span{font-size:8px;color:#76868b}
+ .print-report h2{font:400 17px Georgia;margin:22px 0 9px;color:#092d3d}.print-report table{font-size:7.5px;table-layout:auto;margin-bottom:15px}.print-report th{padding:6px;background:#e9f1f0;color:#244851}.print-report td{padding:5px 6px;white-space:normal;max-width:none;overflow:visible}.print-metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.print-metrics span{border:1px solid #dce5e3;border-radius:7px;padding:9px;color:#688087;font-size:7px}.print-metrics b{display:block;margin-top:5px;font:400 15px Georgia;color:#092d3d}.print-report footer{display:block;background:transparent;color:#7c898d;padding:10px 0 0;margin-top:15px;border-top:1px solid #dce3e2;font-size:7px}.print-table{break-inside:auto}.print-table tr{break-inside:avoid;break-after:auto}.print-table thead{display:table-header-group}
+}
+
+/* Expanded accounting structure */
+.accounting-app{grid-template-columns:270px minmax(0,1fr)}
+.accounting-side{padding:22px 18px;overflow:auto}
+.accounting-logo{padding-bottom:20px}
+.accounting-side nav{margin-top:16px;gap:14px}
+.accounting-side nav section{display:grid;gap:3px}
+.accounting-side nav section>small{padding:8px 12px 3px;color:rgba(255,255,255,.32);font-size:8px;text-transform:uppercase;letter-spacing:.15em}
+.accounting-side nav button{min-height:38px}
+.accounting-toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:-14px 0 22px;padding:10px;background:white;border:1px solid #e0e5e5;border-radius:14px}
+.accounting-toolbar>div{display:flex;align-items:center;gap:4px;padding-right:10px;border-right:1px solid #e3e8e7}
+.accounting-toolbar span{padding:0 6px;color:#74858a;font-size:8px;text-transform:uppercase;letter-spacing:.1em;font-weight:800}
+.accounting-toolbar button{border:0;border-radius:8px;background:#f1f4f3;color:#607277;padding:8px 10px;font-size:9px;font-weight:700}
+.accounting-toolbar button.active{background:#0a3545;color:white}
+.accounting-toolbar>strong{margin-left:auto;padding:0 8px;color:#246e67;font:400 17px Georgia}
+.section-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.metric.green strong{color:#21745f}
+.info-banner{display:flex;align-items:flex-start;gap:18px;padding:16px 18px;margin-bottom:18px;border:1px solid #d7e6e3;border-radius:13px;background:#eef7f5;color:#58736e;font-size:10px;line-height:1.55}
+.info-banner strong{min-width:180px;color:#1d5e58;font-size:11px}
+.statement{background:white;border:1px solid #e0e5e5;border-radius:18px;padding:28px;box-shadow:0 8px 30px rgba(7,40,51,.04)}
+.statement>header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;padding-bottom:22px;margin-bottom:8px;border-bottom:2px solid #183e4a}
+.statement>header span{color:#718287;font-size:9px;text-transform:uppercase;letter-spacing:.13em}.statement>header h2{margin:5px 0 0;font:400 28px Georgia}.statement>header>strong{font:400 30px Georgia}
+.statement h3{margin:24px 0 7px;color:#64777c;font-size:9px;text-transform:uppercase;letter-spacing:.12em}
+.statement-row{display:flex;justify-content:space-between;gap:20px;padding:13px 4px;border-bottom:1px solid #edf1f0;font-size:11px}.statement-row span small{display:block;color:#859398;font-size:8px;margin-top:4px}.statement-row.total{margin-top:5px;border-bottom:0;border-top:1px solid #254b55;font-weight:800}.statement .info-banner{margin:24px 0 0}
+.balance-sheet{display:grid;grid-template-columns:1fr 1fr;gap:18px}.balance-sheet>.info-banner{grid-column:1/-1}
+.balance-chart{height:250px;display:flex;align-items:flex-end;gap:13px;padding:20px 4px 0;border-bottom:1px solid #dce3e2}
+.balance-chart>div{height:100%;flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px;min-width:0}.balance-chart span{width:min(34px,70%);min-height:5px;background:#3da398;border-radius:7px 7px 0 0}.balance-chart span.negative-bar{background:#cf6a55}.balance-chart b{font-size:9px;text-transform:capitalize}.balance-chart small{font-size:7px;color:#75858a;white-space:nowrap}
+.form-grid select{height:45px;border:1px solid #d7dfdf;border-radius:10px;padding:0 12px;background:white}
+@media(max-width:1100px){.accounting-app{grid-template-columns:82px minmax(0,1fr)}.accounting-logo div,.accounting-side nav section>small,.accounting-side nav button{font-size:0}.accounting-side{padding:18px 12px}.accounting-side nav button{justify-content:center}.balance-sheet{grid-template-columns:1fr}}
+@media(max-width:700px){.accounting-toolbar{align-items:stretch}.accounting-toolbar>div{width:100%;overflow:auto;border-right:0;padding:0}.accounting-toolbar button{white-space:nowrap}.accounting-toolbar>strong{margin-left:0}.section-summary{grid-template-columns:1fr}.info-banner{display:grid;gap:5px}.info-banner strong{min-width:0}.balance-chart{height:210px}}
+@media print{.accounting-toolbar{display:none!important}.print-report .statement,.print-report .balance-sheet{box-shadow:none}.print-report .balance-sheet{display:block}.print-report .statement{margin-bottom:12px;padding:16px}.print-report .info-banner{display:block;border:1px solid #dce5e3;padding:8px;font-size:7px}}
