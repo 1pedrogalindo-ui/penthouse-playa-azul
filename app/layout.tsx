@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.ph1401.com"),
   title: "Penthouse en Tonsupa frente al mar | Playa Azul",
   description:
-    "Reserva un penthouse dúplex frente al mar en Playa Azul, Tonsupa. Tarifas por noche desde $180, jacuzzi privado, piscina, 3 dormitorios y reserva directa.",
+    "Reserva un penthouse dúplex frente al mar en Playa Azul, Tonsupa, con jacuzzi privado, piscina, 3 dormitorios y disponibilidad en línea.",
   keywords: [
     "penthouse Tonsupa",
     "alquiler vacacional Tonsupa",
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     "jacuzzi privado Tonsupa",
     "vacaciones en Esmeraldas",
     "reservar penthouse Tonsupa",
-    "tarifas penthouse Tonsupa",
+    "disponibilidad penthouse Tonsupa",
   ],
   applicationName: "Penthouse Playa Azul",
   creator: "Penthouse Playa Azul",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Penthouse en Tonsupa frente al mar | Playa Azul",
     description:
-      "Reserva directa: penthouse dúplex frente al mar en Tonsupa desde $180 por noche, con jacuzzi privado, piscina y 3 dormitorios.",
+      "Reserva directa: penthouse dúplex frente al mar en Tonsupa, con jacuzzi privado, piscina, 3 dormitorios y disponibilidad en línea.",
     url: "https://www.ph1401.com",
     siteName: "Penthouse Playa Azul",
     images: [
@@ -84,7 +84,7 @@ const jsonLd = {
       name: "Penthouse Playa Azul",
       alternateName: "Penthouse frente al mar en Tonsupa",
       description:
-        "Penthouse dúplex de alquiler vacacional frente al mar en Playa Azul, Tonsupa, con tarifas de $180 en temporada baja, $200 en temporada media y $230 en temporada alta.",
+        "Penthouse dúplex de alquiler vacacional frente al mar en Playa Azul, Tonsupa, con jacuzzi privado, piscina y acceso directo a la playa.",
       url: "https://www.ph1401.com/",
       mainEntityOfPage: { "@id": "https://www.ph1401.com/#website" },
       image: [
@@ -94,7 +94,6 @@ const jsonLd = {
         "https://www.ph1401.com/images/amenity-04.webp",
       ],
       telephone: "+593988335552",
-      priceRange: "$$",
       address: {
         "@type": "PostalAddress",
         streetAddress: "Edificio Deymar, Playa Azul",
@@ -125,7 +124,7 @@ const jsonLd = {
         ["¿Cuántos dormitorios y baños tiene?", "El penthouse es un dúplex totalmente equipado con 3 dormitorios y 3 baños."],
         ["¿El jacuzzi es privado?", "Sí. El alojamiento tiene un jacuzzi privado en su terraza con vista al mar."],
         ["¿Qué amenidades incluye el complejo?", "Incluye piscina frente al mar, acceso directo y carpas en la playa, canchas deportivas, sala de ping-pong y restaurante."],
-        ["¿Cómo consulto disponibilidad?", "Puedes consultar fechas, tarifa y número de huéspedes directamente por WhatsApp al +593 98 833 5552."],
+        ["¿Cómo consulto disponibilidad?", "Selecciona las fechas de entrada y salida en el calendario y envía tu solicitud. Confirmaremos disponibilidad y tarifa directamente."],
       ].map(([name, text]) => ({
         "@type": "Question",
         name,

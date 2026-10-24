@@ -5,106 +5,48 @@ import { ChevronLeft, ChevronRight, Info, MessageCircle } from "lucide-react";
 import { trackEvent } from "@/components/analytics";
 
 type Language = "es" | "en";
-type Season = "low" | "mid" | "high";
 type Unavailable = { check_in: string; check_out: string; status: "pending" | "confirmed" | "blocked" };
-type DayRate = { date: string; season: Season; price: number };
-
-const RATES: Record<Season, number> = { low: 180, mid: 200, high: 230 };
-const CLEANING_FEE = 30;
-const BRACELET_FEE = 5;
 const DAY_MS = 86_400_000;
 
 const copy = {
   es: {
     kicker: "Reserva directa · disponibilidad real", title: "Reserva tu estadía frente al mar",
-    intro: "Selecciona entrada y salida en el calendario. El precio se actualiza noche por noche según la temporada y los feriados nacionales.",
-    stay: "Tu alojamiento", dates: "Tus fechas", property: "Penthouse dúplex PH 1401", base: "Desde", perNight: "por noche",
-    capacity: "Hasta 10 huéspedes · 1 unidad", calendarHelp: "Selecciona entrada y salida · precios por noche",
-    available: "Disponible", reserved: "Reservada", blocked: "Bloqueada", low: "Temporada baja", mid: "Media", high: "Alta / feriado",
-    clear: "Borrar fechas", checkIn: "Entrada", checkOut: "Salida", nights: "Noches", budget: "Precio de la reserva",
-    nightly: "Precio de cada noche", lodging: "Subtotal de alojamiento", cleaning: "Limpieza (una vez por estancia)", total: "Total alojamiento + limpieza",
-    checkoutNote: "El día de salida no se cobra como noche.", braceletTitle: "Brazaletes de ingreso · cargo externo",
-    braceletText: "La administración del edificio cobra $5,00 por cada huésped mayor de 7 años. Se paga directamente al ingresar y no está incluido en el total.",
+    intro: "Selecciona entrada y salida para consultar la disponibilidad real del penthouse.",
+    stay: "Tu alojamiento", dates: "Tus fechas", property: "Penthouse dúplex PH 1401",
+    capacity: "Hasta 10 huéspedes · 1 unidad", calendarHelp: "Selecciona las fechas de entrada y salida",
+    available: "Disponible", reserved: "Reservada", blocked: "Bloqueada",
+    clear: "Borrar fechas", checkIn: "Entrada", checkOut: "Salida", nights: "Noches", budget: "Resumen de la reserva",
+    summaryNote: "Te contactaremos para confirmar la tarifa aplicable y completar la reserva.", braceletTitle: "Brazaletes de ingreso · cargo externo",
+    braceletText: "La administración del edificio puede cobrar brazaletes por huésped. Confirmaremos el valor vigente antes de tu llegada.",
     request: "Solicita tu reserva", name: "Nombre y apellido", email: "Correo electrónico", phone: "WhatsApp",
     guests: "Número total de huéspedes", older: "Mayores de 7 años", olderHelp: "Dato para estimar los brazaletes que se pagan a la administración del edificio.",
     comments: "Comentarios (opcional)", consent: "Autorizo el uso de estos datos únicamente para gestionar mi solicitud y contactarme. Enviar la solicitud no confirma la reserva ni realiza un cobro.",
-    submit: "Solicitar reserva", sending: "Enviando…", select: "Elige las fechas para ver el presupuesto.",
+    submit: "Solicitar reserva", sending: "Enviando…",
     invalid: "Selecciona una fecha de salida posterior a la entrada.", unavailableRange: "El rango incluye una fecha reservada o bloqueada.",
-    sent: "Solicitud registrada. Abriremos WhatsApp para continuar.", before: "Antes de reservar", external: "Estimado informativo",
+    sent: "Solicitud registrada. Abriremos WhatsApp para continuar.", before: "Antes de reservar",
   },
   en: {
     kicker: "Direct booking · live availability", title: "Book your oceanfront stay",
-    intro: "Choose check-in and check-out on the calendar. The price updates night by night according to season and national holidays.",
-    stay: "Your accommodation", dates: "Your dates", property: "PH 1401 duplex penthouse", base: "From", perNight: "per night",
-    capacity: "Up to 10 guests · 1 unit", calendarHelp: "Select check-in and check-out · nightly prices",
-    available: "Available", reserved: "Reserved", blocked: "Blocked", low: "Low season", mid: "Mid season", high: "High / holiday",
-    clear: "Clear dates", checkIn: "Check-in", checkOut: "Check-out", nights: "Nights", budget: "Booking price",
-    nightly: "Night-by-night price", lodging: "Accommodation subtotal", cleaning: "Cleaning (once per stay)", total: "Accommodation + cleaning total",
-    checkoutNote: "Check-out day is not charged as a night.", braceletTitle: "Entry wristbands · external charge",
-    braceletText: "Building management charges $5.00 for each guest over 7. It is paid directly on arrival and is not included in this total.",
+    intro: "Select check-in and check-out to consult the penthouse's live availability.",
+    stay: "Your accommodation", dates: "Your dates", property: "PH 1401 duplex penthouse",
+    capacity: "Up to 10 guests · 1 unit", calendarHelp: "Select your check-in and check-out dates",
+    available: "Available", reserved: "Reserved", blocked: "Blocked",
+    clear: "Clear dates", checkIn: "Check-in", checkOut: "Check-out", nights: "Nights", budget: "Booking summary",
+    summaryNote: "We will contact you to confirm the applicable rate and complete your booking.", braceletTitle: "Entry wristbands · external charge",
+    braceletText: "Building management may charge wristbands per guest. We will confirm the current amount before your arrival.",
     request: "Request your booking", name: "Full name", email: "Email", phone: "WhatsApp",
     guests: "Total guests", older: "Guests over 7", olderHelp: "Used to estimate wristbands paid directly to building management.",
     comments: "Comments (optional)", consent: "I authorize use of this data only to process my request and contact me. Sending the request does not confirm a booking or make a charge.",
-    submit: "Request booking", sending: "Sending…", select: "Choose dates to see your quote.",
+    submit: "Request booking", sending: "Sending…",
     invalid: "Choose a check-out date after check-in.", unavailableRange: "This range includes a reserved or blocked date.",
-    sent: "Request saved. We will open WhatsApp to continue.", before: "Before booking", external: "Informational estimate",
+    sent: "Request saved. We will open WhatsApp to continue.", before: "Before booking",
   },
 } as const;
 
 function iso(date: Date) { return date.toISOString().slice(0, 10); }
 function parseDate(value: string) { return new Date(`${value}T00:00:00Z`); }
 function addDays(date: Date, days: number) { return new Date(date.getTime() + days * DAY_MS); }
-function money(value: number, language: Language) { return new Intl.NumberFormat(language === "es" ? "es-EC" : "en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(value); }
 function fullDate(value: string, language: Language) { return value ? new Intl.DateTimeFormat(language === "es" ? "es-EC" : "en-US", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(parseDate(value)) : "—"; }
-function shortDate(value: string, language: Language) { return new Intl.DateTimeFormat(language === "es" ? "es-EC" : "en-US", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(parseDate(value)); }
-function easterSunday(year: number) {
-  const a = year % 19; const b = Math.floor(year / 100); const c = year % 100; const d = Math.floor(b / 4); const e = b % 4;
-  const f = Math.floor((b + 8) / 25); const g = Math.floor((b - f + 1) / 3); const h = (19 * a + b - d - g + 15) % 30;
-  const i = Math.floor(c / 4); const k = c % 4; const l = (32 + 2 * e + 2 * i - h - k) % 7; const m = Math.floor((a + 11 * h + 22 * l) / 451);
-  const month = Math.floor((h + l - 7 * m + 114) / 31); const day = ((h + l - 7 * m + 114) % 31) + 1;
-  return new Date(Date.UTC(year, month - 1, day));
-}
-function observedHoliday(year: number, month: number, day: number, immovable = false) {
-  const date = new Date(Date.UTC(year, month - 1, day)); if (immovable) return date;
-  const weekday = date.getUTCDay();
-  if (weekday === 2 || weekday === 6) return addDays(date, -1);
-  if (weekday === 3 || weekday === 4) return addDays(date, 5 - weekday);
-  if (weekday === 0) return addDays(date, 1);
-  return date;
-}
-function holidayNights(year: number) {
-  const easter = easterSunday(year);
-  const novemberHolidays = year === 2026
-    ? [new Date(Date.UTC(2026, 10, 2)), new Date(Date.UTC(2026, 10, 3))]
-    : [observedHoliday(year, 11, 2), observedHoliday(year, 11, 3)];
-  const holidays = [
-    observedHoliday(year, 1, 1, true), addDays(easter, -48), addDays(easter, -47), addDays(easter, -2),
-    observedHoliday(year, 5, 1), observedHoliday(year, 5, 24), observedHoliday(year, 8, 10),
-    observedHoliday(year, 10, 9), ...novemberHolidays, observedHoliday(year, 12, 25, true),
-  ];
-  const daysOff = new Set(holidays.map(iso));
-  const isDayOff = (date: Date) => date.getUTCDay() === 0 || date.getUTCDay() === 6 || daysOff.has(iso(date));
-  const nights = new Set<string>();
-  for (const holiday of holidays) {
-    let start = holiday; let end = holiday;
-    while (isDayOff(addDays(start, -1))) start = addDays(start, -1);
-    while (isDayOff(addDays(end, 1))) end = addDays(end, 1);
-    start = addDays(start, -1);
-    for (let cursor = start; iso(cursor) <= iso(end); cursor = addDays(cursor, 1)) nights.add(iso(cursor));
-  }
-  return nights;
-}
-function isHolidayNight(value: string) {
-  const year = parseDate(value).getUTCFullYear();
-  return holidayNights(year - 1).has(value) || holidayNights(year).has(value) || holidayNights(year + 1).has(value);
-}
-function rateFor(value: string): DayRate {
-  const date = parseDate(value); const month = date.getUTCMonth() + 1; const day = date.getUTCDate(); const weekday = date.getUTCDay();
-  const peak = (month === 12 && day >= 20) || (month === 1 && day <= 5);
-  const season: Season = (peak || isHolidayNight(value)) ? "high" : ([6, 7, 8].includes(month) || weekday === 5 || weekday === 6) ? "mid" : "low";
-  return { date: value, season, price: RATES[season] };
-}
-
 export function BookingCalculator({ language }: { language: Language }) {
   const t = copy[language]; const today = iso(new Date());
   const [month, setMonth] = useState(() => new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), 1)));
@@ -117,8 +59,7 @@ export function BookingCalculator({ language }: { language: Language }) {
   useEffect(() => { fetch("/api/reservations", { cache: "no-store" }).then((r) => r.json()).then((x) => setUnavailable(x.unavailable || [])).catch(() => setUnavailable([])); }, []);
   const statusFor = (date: string) => { const match = unavailable.find((item) => date >= item.check_in && date < item.check_out); return match ? (match.status === "blocked" ? "blocked" : "reserved") : "available"; };
   const monthDays = useMemo(() => { const mondayOffset = (month.getUTCDay() + 6) % 7; const start = addDays(month, -mondayOffset); return Array.from({ length: 42 }, (_, index) => addDays(start, index)); }, [month]);
-  const daily = useMemo<DayRate[]>(() => { if (!checkIn || !checkOut || checkOut <= checkIn) return []; const result: DayRate[] = []; for (let cursor = parseDate(checkIn); iso(cursor) < checkOut; cursor = addDays(cursor, 1)) result.push(rateFor(iso(cursor))); return result; }, [checkIn, checkOut]);
-  const lodging = daily.reduce((sum, item) => sum + item.price, 0); const total = daily.length ? lodging + CLEANING_FEE : 0; const braceletEstimate = olderGuests * BRACELET_FEE;
+  const daily = useMemo<string[]>(() => { if (!checkIn || !checkOut || checkOut <= checkIn) return []; const result: string[] = []; for (let cursor = parseDate(checkIn); iso(cursor) < checkOut; cursor = addDays(cursor, 1)) result.push(iso(cursor)); return result; }, [checkIn, checkOut]);
   function updateRange(nextCheckIn: string, nextCheckOut: string) {
     rangeRef.current = { checkIn: nextCheckIn, checkOut: nextCheckOut };
     setCheckIn(nextCheckIn); setCheckOut(nextCheckOut);
@@ -133,25 +74,24 @@ export function BookingCalculator({ language }: { language: Language }) {
   function clearDates() { updateRange("", ""); setError(""); setStatus(""); }
   async function submit(event: FormEvent) {
     event.preventDefault(); if (!daily.length) { setError(t.invalid); return; } setSending(true); setError(""); setStatus("");
-    const seasons = [...new Set(daily.map((item) => item.season))]; const averageRate = lodging / daily.length;
-    const payload = { guest_name: name, phone, email, check_in: checkIn, check_out: checkOut, guests, guests_over_7: olderGuests, season: seasons.length === 1 ? seasons[0] : "mixed", nightly_rate: Number(averageRate.toFixed(2)), lodging_subtotal: lodging, cleaning_fee: CLEANING_FEE, bracelet_estimate: braceletEstimate, total, comments, rate_breakdown: daily };
+    const payload = { guest_name: name, phone, email, check_in: checkIn, check_out: checkOut, guests, guests_over_7: olderGuests, comments };
     const response = await fetch("/api/reservations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); const result = await response.json(); setSending(false);
     if (!response.ok) { setError(result.error || "No pudimos registrar la solicitud."); return; } setStatus(t.sent);
-    const message = language === "es" ? `Hola, quiero solicitar una reserva del Penthouse PH 1401.\n\nEntrada: ${fullDate(checkIn, language)}\nSalida: ${fullDate(checkOut, language)}\nHuéspedes: ${guests}\nNoches: ${daily.length}\nAlojamiento: ${money(lodging, language)}\nLimpieza: ${money(CLEANING_FEE, language)}\nTotal: ${money(total, language)}\nBrazaletes externos estimados: ${money(braceletEstimate, language)}\n\nPor favor, confírmame la reserva.` : `Hello, I would like to request a booking for PH 1401.\n\nCheck-in: ${fullDate(checkIn, language)}\nCheck-out: ${fullDate(checkOut, language)}\nGuests: ${guests}\nNights: ${daily.length}\nAccommodation: ${money(lodging, language)}\nCleaning: ${money(CLEANING_FEE, language)}\nTotal: ${money(total, language)}\nEstimated external wristbands: ${money(braceletEstimate, language)}\n\nPlease confirm my booking.`;
-    trackEvent("generate_lead", { lead_source: "booking_calendar", language, nights: daily.length, guests, estimated_total: total }, "Lead"); window.open(`https://wa.me/593988335552?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+    const message = language === "es" ? `Hola, quiero solicitar una reserva del Penthouse PH 1401.\n\nEntrada: ${fullDate(checkIn, language)}\nSalida: ${fullDate(checkOut, language)}\nHuéspedes: ${guests}\nNoches: ${daily.length}\n\nPor favor, confírmame disponibilidad y tarifa.` : `Hello, I would like to request a booking for PH 1401.\n\nCheck-in: ${fullDate(checkIn, language)}\nCheck-out: ${fullDate(checkOut, language)}\nGuests: ${guests}\nNights: ${daily.length}\n\nPlease confirm availability and the applicable rate.`;
+    trackEvent("generate_lead", { lead_source: "booking_calendar", language, nights: daily.length, guests }, "Lead"); window.open(`https://wa.me/593988335552?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
   }
   const monthLabel = new Intl.DateTimeFormat(language === "es" ? "es-EC" : "en-US", { month: "long", year: "numeric", timeZone: "UTC" }).format(month);
   const weekdays = language === "es" ? ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"] : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   return <section id="reservar" className="booking-section section-pad">
     <div className="booking-heading"><div><p className="kicker">{t.kicker}</p><h2>{t.title}</h2></div><p>{t.intro}</p></div>
-    <div className="property-step"><p>1 · {t.stay}</p><article className="property-card"><div className="property-photo"/><div><h3>{t.property}</h3><span>{t.base} <strong>{money(180, language)}</strong> {t.perNight}</span><p>{t.capacity}</p></div></article></div>
-    <div className={`reservation-grid ${daily.length ? "has-price" : "dates-only"}`}><div className="calendar-column"><p className="booking-step">2 · {t.dates}</p><div className="booking-calendar">
+    <div className="property-step"><p>1 · {t.stay}</p><article className="property-card"><div className="property-photo"/><div><h3>{t.property}</h3><p>{t.capacity}</p></div></article></div>
+    <div className={`reservation-grid ${daily.length ? "has-summary" : "dates-only"}`}><div className="calendar-column"><p className="booking-step">2 · {t.dates}</p><div className="booking-calendar">
       <header><button type="button" onClick={() => setMonth(new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() - 1, 1)))} aria-label="Mes anterior"><ChevronLeft/></button><strong>{monthLabel}</strong><button type="button" onClick={() => setMonth(new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + 1, 1)))} aria-label="Mes siguiente"><ChevronRight/></button></header>
       <p>{t.calendarHelp}</p><div className="weekday-row">{weekdays.map((day) => <span key={day}>{day}</span>)}</div>
-      <div className="month-grid">{monthDays.map((date) => { const value = iso(date); const rate = rateFor(value); const availability = statusFor(value); const outside = date.getUTCMonth() !== month.getUTCMonth(); const past = value < today; const selected = value === checkIn || value === checkOut; const inRange = !!checkIn && !!checkOut && value > checkIn && value < checkOut; return <button type="button" key={value} disabled={past || availability !== "available"} className={`${outside ? "outside" : ""} ${availability} ${selected ? "selected" : ""} ${inRange ? "in-range" : ""} season-${rate.season}`} onClick={() => chooseDate(value)}><span>{date.getUTCDate()}</span><small>{money(rate.price, language)}</small></button>; })}</div>
-      <div className="calendar-legend"><span><i className="open"/>{t.available}</span><span><i className="reserved"/>{t.reserved}</span><span><i className="blocked"/>{t.blocked}</span><span><i className="low"/>{t.low}</span><span><i className="mid"/>{t.mid}</span><span><i className="high"/>{t.high}</span></div><button className="clear-dates" type="button" onClick={clearDates}>{t.clear}</button>
+      <div className="month-grid">{monthDays.map((date) => { const value = iso(date); const availability = statusFor(value); const outside = date.getUTCMonth() !== month.getUTCMonth(); const past = value < today; const selected = value === checkIn || value === checkOut; const inRange = !!checkIn && !!checkOut && value > checkIn && value < checkOut; return <button type="button" key={value} disabled={past || availability !== "available"} className={`${outside ? "outside" : ""} ${availability} ${selected ? "selected" : ""} ${inRange ? "in-range" : ""}`} onClick={() => chooseDate(value)}><span>{date.getUTCDate()}</span></button>; })}</div>
+      <div className="calendar-legend"><span><i className="open"/>{t.available}</span><span><i className="reserved"/>{t.reserved}</span><span><i className="blocked"/>{t.blocked}</span></div><button className="clear-dates" type="button" onClick={clearDates}>{t.clear}</button>
     </div><div className="date-inputs"><label>{t.checkIn}<input type="date" value={checkIn} min={today} onChange={(e) => { updateRange("", ""); chooseDate(e.target.value); }}/></label><label>{t.checkOut}<input type="date" value={checkOut} min={checkIn || today} onChange={(e) => chooseDate(e.target.value)}/></label></div><div className="booking-info"><Info/><p><strong>{t.before}:</strong> {t.braceletText}</p></div></div>
-    {daily.length > 0 && <aside className="quote-card" aria-live="polite"><p className="quote-kicker">{t.budget}</p><h3>{t.property}</h3><div className="quote-facts"><span>{t.checkIn}<b>{fullDate(checkIn, language)}</b></span><span>{t.checkOut}<b>{fullDate(checkOut, language)}</b></span><span>{t.nights}<b>{daily.length}</b></span></div><h4>{t.nightly}</h4><div className="night-list">{daily.map((item) => <div key={item.date}><span>{shortDate(item.date, language)}<small>{t[item.season]}</small></span><b>{money(item.price, language)}</b></div>)}</div><p className="checkout-note">{t.checkoutNote}</p><div className="quote-line"><span>{t.lodging}</span><b>{money(lodging, language)}</b></div><div className="quote-line"><span>{t.cleaning}</span><b>{money(CLEANING_FEE, language)}</b></div><div className="quote-total"><span>{t.total}<small>USD · PH 1401</small></span><b>{money(total, language)}</b></div><div className="bracelet-card"><Info/><div><strong>{t.braceletTitle}</strong><p>{t.braceletText}</p><b>{t.external}: {olderGuests} × {money(BRACELET_FEE, language)} = {money(braceletEstimate, language)}</b></div></div></aside>}</div>
+    {daily.length > 0 && <aside className="quote-card booking-summary-card" aria-live="polite"><p className="quote-kicker">{t.budget}</p><h3>{t.property}</h3><div className="quote-facts"><span>{t.checkIn}<b>{fullDate(checkIn, language)}</b></span><span>{t.checkOut}<b>{fullDate(checkOut, language)}</b></span><span>{t.nights}<b>{daily.length}</b></span></div><p className="summary-note">{t.summaryNote}</p><div className="bracelet-card"><Info/><div><strong>{t.braceletTitle}</strong><p>{t.braceletText}</p></div></div></aside>}</div>
     <form className="request-card" onSubmit={submit}><h3>{t.request}</h3><div className="request-fields"><label className="wide">{t.name}<input value={name} onChange={(e)=>setName(e.target.value)} required/></label><label>{t.email}<input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} required/></label><label>{t.phone}<input type="tel" placeholder="+593…" value={phone} onChange={(e)=>setPhone(e.target.value)} required/></label><label>{t.guests}<input type="number" min="1" max="10" value={guests} onChange={(e)=>{const n=Math.max(1,Math.min(10,Number(e.target.value)||1));setGuests(n);setOlderGuests(Math.min(olderGuests,n));}} required/></label><label>{t.older}<input type="number" min="0" max={guests} value={olderGuests} onChange={(e)=>setOlderGuests(Math.max(0,Math.min(guests,Number(e.target.value)||0)))}/></label><p className="field-help wide">{t.olderHelp}</p><label className="wide">{t.comments}<textarea value={comments} onChange={(e)=>setComments(e.target.value)} rows={4}/></label></div><label className="consent"><input type="checkbox" checked={consent} onChange={(e)=>setConsent(e.target.checked)} required/><span>{t.consent}</span></label>{error&&<p className="booking-error" role="alert">{error}</p>}{status&&<p className="booking-success" role="status">{status}</p>}<button className="request-submit" disabled={sending || !daily.length || !consent}><MessageCircle/>{sending?t.sending:t.submit}</button></form>
   </section>;
 }
