@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { CalendarDays, Check, ChevronLeft, ChevronRight, Info, MessageCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Info, MessageCircle } from "lucide-react";
 import { trackEvent } from "@/components/analytics";
 
 type Language = "es" | "en";
@@ -10,18 +10,18 @@ type Unavailable = { check_in: string; check_out: string; status: "pending" | "c
 type DayRate = { date: string; season: Season; price: number };
 
 const RATES: Record<Season, number> = { low: 180, mid: 200, high: 230 };
-const CLEANING_FEE = 25;
+const CLEANING_FEE = 30;
 const BRACELET_FEE = 5;
 const DAY_MS = 86_400_000;
 
 const copy = {
   es: {
     kicker: "Reserva directa · disponibilidad real", title: "Reserva tu estadía frente al mar",
-    intro: "Selecciona entrada y salida en el calendario. El presupuesto se actualiza noche por noche según la temporada.",
+    intro: "Selecciona entrada y salida en el calendario. El precio se actualiza noche por noche según la temporada y los feriados nacionales.",
     stay: "Tu alojamiento", dates: "Tus fechas", property: "Penthouse dúplex PH 1401", base: "Desde", perNight: "por noche",
-    capacity: "Hasta 10 huéspedes · 1 unidad", selected: "Seleccionado", calendarHelp: "Selecciona entrada y salida · precios por noche",
+    capacity: "Hasta 10 huéspedes · 1 unidad", calendarHelp: "Selecciona entrada y salida · precios por noche",
     available: "Disponible", reserved: "Reservada", blocked: "Bloqueada", low: "Temporada baja", mid: "Media", high: "Alta / feriado",
-    clear: "Borrar fechas", checkIn: "Entrada", checkOut: "Salida", nights: "Noches", budget: "Presupuesto de alojamiento",
+    clear: "Borrar fechas", checkIn: "Entrada", checkOut: "Salida", nights: "Noches", budget: "Precio de la reserva",
     nightly: "Precio de cada noche", lodging: "Subtotal de alojamiento", cleaning: "Limpieza (una vez por estancia)", total: "Total alojamiento + limpieza",
     checkoutNote: "El día de salida no se cobra como noche.", braceletTitle: "Brazaletes de ingreso · cargo externo",
     braceletText: "La administración del edificio cobra $5,00 por cada huésped mayor de 7 años. Se paga directamente al ingresar y no está incluido en el total.",
@@ -34,11 +34,11 @@ const copy = {
   },
   en: {
     kicker: "Direct booking · live availability", title: "Book your oceanfront stay",
-    intro: "Choose check-in and check-out on the calendar. Your quote updates night by night according to the season.",
+    intro: "Choose check-in and check-out on the calendar. The price updates night by night according to season and national holidays.",
     stay: "Your accommodation", dates: "Your dates", property: "PH 1401 duplex penthouse", base: "From", perNight: "per night",
-    capacity: "Up to 10 guests · 1 unit", selected: "Selected", calendarHelp: "Select check-in and check-out · nightly prices",
+    capacity: "Up to 10 guests · 1 unit", calendarHelp: "Select check-in and check-out · nightly prices",
     available: "Available", reserved: "Reserved", blocked: "Blocked", low: "Low season", mid: "Mid season", high: "High / holiday",
-    clear: "Clear dates", checkIn: "Check-in", checkOut: "Check-out", nights: "Nights", budget: "Accommodation quote",
+    clear: "Clear dates", checkIn: "Check-in", checkOut: "Check-out", nights: "Nights", budget: "Booking price",
     nightly: "Night-by-night price", lodging: "Accommodation subtotal", cleaning: "Cleaning (once per stay)", total: "Accommodation + cleaning total",
     checkoutNote: "Check-out day is not charged as a night.", braceletTitle: "Entry wristbands · external charge",
     braceletText: "Building management charges $5.00 for each guest over 7. It is paid directly on arrival and is not included in this total.",
@@ -57,10 +57,51 @@ function addDays(date: Date, days: number) { return new Date(date.getTime() + da
 function money(value: number, language: Language) { return new Intl.NumberFormat(language === "es" ? "es-EC" : "en-US", { style: "currency", currency: "USD", minimumFractionDigits: 0 }).format(value); }
 function fullDate(value: string, language: Language) { return value ? new Intl.DateTimeFormat(language === "es" ? "es-EC" : "en-US", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }).format(parseDate(value)) : "—"; }
 function shortDate(value: string, language: Language) { return new Intl.DateTimeFormat(language === "es" ? "es-EC" : "en-US", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" }).format(parseDate(value)); }
+function easterSunday(year: number) {
+  const a = year % 19; const b = Math.floor(year / 100); const c = year % 100; const d = Math.floor(b / 4); const e = b % 4;
+  const f = Math.floor((b + 8) / 25); const g = Math.floor((b - f + 1) / 3); const h = (19 * a + b - d - g + 15) % 30;
+  const i = Math.floor(c / 4); const k = c % 4; const l = (32 + 2 * e + 2 * i - h - k) % 7; const m = Math.floor((a + 11 * h + 22 * l) / 451);
+  const month = Math.floor((h + l - 7 * m + 114) / 31); const day = ((h + l - 7 * m + 114) % 31) + 1;
+  return new Date(Date.UTC(year, month - 1, day));
+}
+function observedHoliday(year: number, month: number, day: number, immovable = false) {
+  const date = new Date(Date.UTC(year, month - 1, day)); if (immovable) return date;
+  const weekday = date.getUTCDay();
+  if (weekday === 2 || weekday === 6) return addDays(date, -1);
+  if (weekday === 3 || weekday === 4) return addDays(date, 5 - weekday);
+  if (weekday === 0) return addDays(date, 1);
+  return date;
+}
+function holidayNights(year: number) {
+  const easter = easterSunday(year);
+  const novemberHolidays = year === 2026
+    ? [new Date(Date.UTC(2026, 10, 2)), new Date(Date.UTC(2026, 10, 3))]
+    : [observedHoliday(year, 11, 2), observedHoliday(year, 11, 3)];
+  const holidays = [
+    observedHoliday(year, 1, 1, true), addDays(easter, -48), addDays(easter, -47), addDays(easter, -2),
+    observedHoliday(year, 5, 1), observedHoliday(year, 5, 24), observedHoliday(year, 8, 10),
+    observedHoliday(year, 10, 9), ...novemberHolidays, observedHoliday(year, 12, 25, true),
+  ];
+  const daysOff = new Set(holidays.map(iso));
+  const isDayOff = (date: Date) => date.getUTCDay() === 0 || date.getUTCDay() === 6 || daysOff.has(iso(date));
+  const nights = new Set<string>();
+  for (const holiday of holidays) {
+    let start = holiday; let end = holiday;
+    while (isDayOff(addDays(start, -1))) start = addDays(start, -1);
+    while (isDayOff(addDays(end, 1))) end = addDays(end, 1);
+    start = addDays(start, -1);
+    for (let cursor = start; iso(cursor) <= iso(end); cursor = addDays(cursor, 1)) nights.add(iso(cursor));
+  }
+  return nights;
+}
+function isHolidayNight(value: string) {
+  const year = parseDate(value).getUTCFullYear();
+  return holidayNights(year - 1).has(value) || holidayNights(year).has(value) || holidayNights(year + 1).has(value);
+}
 function rateFor(value: string): DayRate {
   const date = parseDate(value); const month = date.getUTCMonth() + 1; const day = date.getUTCDate(); const weekday = date.getUTCDay();
   const peak = (month === 12 && day >= 20) || (month === 1 && day <= 5);
-  const season: Season = peak ? "high" : ([6, 7, 8].includes(month) || weekday === 5 || weekday === 6) ? "mid" : "low";
+  const season: Season = (peak || isHolidayNight(value)) ? "high" : ([6, 7, 8].includes(month) || weekday === 5 || weekday === 6) ? "mid" : "low";
   return { date: value, season, price: RATES[season] };
 }
 
@@ -103,14 +144,14 @@ export function BookingCalculator({ language }: { language: Language }) {
   const weekdays = language === "es" ? ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"] : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   return <section id="reservar" className="booking-section section-pad">
     <div className="booking-heading"><div><p className="kicker">{t.kicker}</p><h2>{t.title}</h2></div><p>{t.intro}</p></div>
-    <div className="property-step"><p>1 · {t.stay}</p><article className="property-card"><div className="property-photo"/><div><h3>{t.property}</h3><span>{t.base} <strong>{money(180, language)}</strong> {t.perNight}</span><p>{t.capacity}</p></div><b><Check/> {t.selected}</b></article></div>
-    <div className="reservation-grid"><div className="calendar-column"><p className="booking-step">2 · {t.dates}</p><div className="booking-calendar">
+    <div className="property-step"><p>1 · {t.stay}</p><article className="property-card"><div className="property-photo"/><div><h3>{t.property}</h3><span>{t.base} <strong>{money(180, language)}</strong> {t.perNight}</span><p>{t.capacity}</p></div></article></div>
+    <div className={`reservation-grid ${daily.length ? "has-price" : "dates-only"}`}><div className="calendar-column"><p className="booking-step">2 · {t.dates}</p><div className="booking-calendar">
       <header><button type="button" onClick={() => setMonth(new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() - 1, 1)))} aria-label="Mes anterior"><ChevronLeft/></button><strong>{monthLabel}</strong><button type="button" onClick={() => setMonth(new Date(Date.UTC(month.getUTCFullYear(), month.getUTCMonth() + 1, 1)))} aria-label="Mes siguiente"><ChevronRight/></button></header>
       <p>{t.calendarHelp}</p><div className="weekday-row">{weekdays.map((day) => <span key={day}>{day}</span>)}</div>
       <div className="month-grid">{monthDays.map((date) => { const value = iso(date); const rate = rateFor(value); const availability = statusFor(value); const outside = date.getUTCMonth() !== month.getUTCMonth(); const past = value < today; const selected = value === checkIn || value === checkOut; const inRange = !!checkIn && !!checkOut && value > checkIn && value < checkOut; return <button type="button" key={value} disabled={past || availability !== "available"} className={`${outside ? "outside" : ""} ${availability} ${selected ? "selected" : ""} ${inRange ? "in-range" : ""} season-${rate.season}`} onClick={() => chooseDate(value)}><span>{date.getUTCDate()}</span><small>{money(rate.price, language)}</small></button>; })}</div>
       <div className="calendar-legend"><span><i className="open"/>{t.available}</span><span><i className="reserved"/>{t.reserved}</span><span><i className="blocked"/>{t.blocked}</span><span><i className="low"/>{t.low}</span><span><i className="mid"/>{t.mid}</span><span><i className="high"/>{t.high}</span></div><button className="clear-dates" type="button" onClick={clearDates}>{t.clear}</button>
     </div><div className="date-inputs"><label>{t.checkIn}<input type="date" value={checkIn} min={today} onChange={(e) => { updateRange("", ""); chooseDate(e.target.value); }}/></label><label>{t.checkOut}<input type="date" value={checkOut} min={checkIn || today} onChange={(e) => chooseDate(e.target.value)}/></label></div><div className="booking-info"><Info/><p><strong>{t.before}:</strong> {t.braceletText}</p></div></div>
-    <aside className="quote-card" aria-live="polite"><p className="quote-kicker">{t.budget}</p><h3>{t.property}</h3>{daily.length ? <><div className="quote-facts"><span>{t.checkIn}<b>{fullDate(checkIn, language)}</b></span><span>{t.checkOut}<b>{fullDate(checkOut, language)}</b></span><span>{t.nights}<b>{daily.length}</b></span></div><h4>{t.nightly}</h4><div className="night-list">{daily.map((item) => <div key={item.date}><span>{shortDate(item.date, language)}<small>{t[item.season]}</small></span><b>{money(item.price, language)}</b></div>)}</div><p className="checkout-note">{t.checkoutNote}</p><div className="quote-line"><span>{t.lodging}</span><b>{money(lodging, language)}</b></div><div className="quote-line"><span>{t.cleaning}</span><b>{money(CLEANING_FEE, language)}</b></div><div className="quote-total"><span>{t.total}<small>USD · PH 1401</small></span><b>{money(total, language)}</b></div></> : <div className="empty-quote"><CalendarDays/><p>{t.select}</p></div>}<div className="bracelet-card"><Info/><div><strong>{t.braceletTitle}</strong><p>{t.braceletText}</p><b>{t.external}: {olderGuests} × {money(BRACELET_FEE, language)} = {money(braceletEstimate, language)}</b></div></div></aside></div>
+    {daily.length > 0 && <aside className="quote-card" aria-live="polite"><p className="quote-kicker">{t.budget}</p><h3>{t.property}</h3><div className="quote-facts"><span>{t.checkIn}<b>{fullDate(checkIn, language)}</b></span><span>{t.checkOut}<b>{fullDate(checkOut, language)}</b></span><span>{t.nights}<b>{daily.length}</b></span></div><h4>{t.nightly}</h4><div className="night-list">{daily.map((item) => <div key={item.date}><span>{shortDate(item.date, language)}<small>{t[item.season]}</small></span><b>{money(item.price, language)}</b></div>)}</div><p className="checkout-note">{t.checkoutNote}</p><div className="quote-line"><span>{t.lodging}</span><b>{money(lodging, language)}</b></div><div className="quote-line"><span>{t.cleaning}</span><b>{money(CLEANING_FEE, language)}</b></div><div className="quote-total"><span>{t.total}<small>USD · PH 1401</small></span><b>{money(total, language)}</b></div><div className="bracelet-card"><Info/><div><strong>{t.braceletTitle}</strong><p>{t.braceletText}</p><b>{t.external}: {olderGuests} × {money(BRACELET_FEE, language)} = {money(braceletEstimate, language)}</b></div></div></aside>}</div>
     <form className="request-card" onSubmit={submit}><h3>{t.request}</h3><div className="request-fields"><label className="wide">{t.name}<input value={name} onChange={(e)=>setName(e.target.value)} required/></label><label>{t.email}<input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} required/></label><label>{t.phone}<input type="tel" placeholder="+593…" value={phone} onChange={(e)=>setPhone(e.target.value)} required/></label><label>{t.guests}<input type="number" min="1" max="10" value={guests} onChange={(e)=>{const n=Math.max(1,Math.min(10,Number(e.target.value)||1));setGuests(n);setOlderGuests(Math.min(olderGuests,n));}} required/></label><label>{t.older}<input type="number" min="0" max={guests} value={olderGuests} onChange={(e)=>setOlderGuests(Math.max(0,Math.min(guests,Number(e.target.value)||0)))}/></label><p className="field-help wide">{t.olderHelp}</p><label className="wide">{t.comments}<textarea value={comments} onChange={(e)=>setComments(e.target.value)} rows={4}/></label></div><label className="consent"><input type="checkbox" checked={consent} onChange={(e)=>setConsent(e.target.checked)} required/><span>{t.consent}</span></label>{error&&<p className="booking-error" role="alert">{error}</p>}{status&&<p className="booking-success" role="status">{status}</p>}<button className="request-submit" disabled={sending || !daily.length || !consent}><MessageCircle/>{sending?t.sending:t.submit}</button></form>
   </section>;
 }
