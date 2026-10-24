@@ -2,10 +2,15 @@
   "name": "penthouse-playa-azul",
   "version": "1.0.0",
   "private": true,
-  "scripts": { "dev": "node scripts/next-dev.mjs", "build": "next build", "start": "next start" },
+  "scripts": {
+    "dev": "node scripts/next-dev.mjs",
+    "build": "next build",
+    "start": "next start"
+  },
   "dependencies": {
     "@radix-ui/react-dialog": "latest",
     "@radix-ui/react-tabs": "latest",
+    "@supabase/supabase-js": "^2.118.0",
     "class-variance-authority": "latest",
     "clsx": "latest",
     "lucide-react": "latest",
@@ -15,5 +20,13 @@
     "react-dom": "latest",
     "tailwind-merge": "latest"
   },
-  "devDependencies": { "@tailwindcss/postcss": "latest", "@types/node": "latest", "@types/react": "latest", "@types/react-dom": "latest", "tailwindcss": "latest", "tw-animate-css": "latest", "typescript": "latest" }
+  "devDependencies": {
+    "@tailwindcss/postcss": "latest",
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "tailwindcss": "latest",
+    "tw-animate-css": "latest",
+    "typescript": "latest"
+  }
 }
