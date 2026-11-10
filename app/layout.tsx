@@ -110,6 +110,7 @@ const jsonLd = {
         streetAddress: "Edificio Deymar, Playa Azul",
         addressLocality: "Tonsupa",
         addressRegion: "Esmeraldas",
+        postalCode: "080306",
         addressCountry: "EC",
       },
       latitude: 0.901927,
