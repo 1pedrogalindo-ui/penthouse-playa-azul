@@ -22,10 +22,14 @@ export const metadata: Metadata = {
   creator: "Penthouse Playa Azul",
   publisher: "Penthouse Playa Azul",
   category: "Alquiler vacacional",
+  manifest: "/site.webmanifest",
   icons: {
-    icon: [{ url: "/images/ph1401-icon-64.png", type: "image/png", sizes: "64x64" }],
-    shortcut: "/images/ph1401-icon-64.png",
-    apple: [{ url: "/images/ph1401-apple-icon.png", sizes: "180x180", type: "image/png" }],
+    icon: [
+      { url: "/favicon.ico?v=20261112", type: "image/x-icon", sizes: "64x64" },
+      { url: "/icon.png?v=20261112", type: "image/png", sizes: "64x64" },
+    ],
+    shortcut: "/favicon.ico?v=20261112",
+    apple: [{ url: "/apple-icon.png?v=20261112", sizes: "180x180", type: "image/png" }],
   },
   alternates: {
     canonical: "https://www.ph1401.com/",

@@ -1,0 +1,21 @@
+{
+  "name": "Penthouse Playa Azul PH 1401",
+  "short_name": "PH 1401",
+  "description": "Penthouse frente al mar en Playa Azul, Tonsupa.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f3ec",
+  "theme_color": "#173b4f",
+  "icons": [
+    {
+      "src": "/icon.png?v=20261112",
+      "sizes": "64x64",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-icon.png?v=20261112",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
