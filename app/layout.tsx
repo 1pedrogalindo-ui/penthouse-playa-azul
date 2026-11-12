@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     title: "Penthouse en Tonsupa frente al mar | Playa Azul",
     description:
       "Reserva directa: penthouse dúplex frente al mar en Tonsupa, con jacuzzi privado, piscina, 3 dormitorios y disponibilidad en línea.",
-    url: "https://www.ph1401.com",
+    url: "https://www.ph1401.com/",
     siteName: "Penthouse Playa Azul",
     images: [
       {
