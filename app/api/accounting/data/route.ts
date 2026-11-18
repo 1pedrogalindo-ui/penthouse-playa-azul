@@ -72,7 +72,7 @@ export async function PATCH(request: Request) {
       if (period === "AM" && hour === 12) hour = 0;
       return hour * 60 + minute;
     };
-    const ordered = (transactions || []).sort((a, b) =>
+    const ordered = ((transactions || []) as Array<{ id: string; date: string | null; time: string | null; created_at: string | null; amount: number | string | null; bank_balance: number | string | null }>).sort((a, b) =>
       String(a.date || "").localeCompare(String(b.date || "")) ||
       timeValue(a.time) - timeValue(b.time) ||
       String(a.created_at || "").localeCompare(String(b.created_at || "")),
