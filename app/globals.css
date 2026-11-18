@@ -95,6 +95,7 @@ footer{background:var(--deep);color:white;padding:50px clamp(20px,7vw,110px);dis
 .accounting-toolbar button{border:0;border-radius:8px;background:#f1f4f3;color:#607277;padding:8px 10px;font-size:9px;font-weight:700}
 .accounting-toolbar button.active{background:#0a3545;color:white}
 .accounting-toolbar>strong{margin-left:auto;padding:0 8px;color:#246e67;font:400 17px Georgia}
+.movement-filters{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:14px}.movement-filters span{color:#74858a;font-size:8px;text-transform:uppercase;letter-spacing:.1em;font-weight:800}.movement-filters button{border:1px solid #dce5e3;border-radius:9px;background:white;color:#536a70;padding:9px 13px;font-size:9px;font-weight:800;cursor:pointer}.movement-filters button.active{background:#0a3545;border-color:#0a3545;color:white}.movement-filters button.active.income{background:#24755f;border-color:#24755f}.movement-filters button.active.expense{background:#b75c4d;border-color:#b75c4d}
 .section-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
 .metric.green strong{color:#21745f}
 .info-banner{display:flex;align-items:flex-start;gap:18px;padding:16px 18px;margin-bottom:18px;border:1px solid #d7e6e3;border-radius:13px;background:#eef7f5;color:#58736e;font-size:10px;line-height:1.55}
