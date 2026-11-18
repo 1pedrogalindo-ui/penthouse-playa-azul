@@ -48,8 +48,56 @@ export async function PATCH(request: Request) {
   if (!(await authorized())) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   const { table, id, record } = await request.json();
   if (!tables.includes(table) || !id) return NextResponse.json({ error: "Solicitud inválida" }, { status: 400 });
-  const { data, error } = await getSupabaseAdmin().from(table).update(record).eq("id", id).select().single();
+  const db = getSupabaseAdmin();
+  const { data: original } = table === "accounting_transactions"
+    ? await db.from("accounting_transactions").select("amount, bank_balance").eq("id", id).single()
+    : { data: null };
+
+  const { data, error } = await db.from(table).update(record).eq("id", id).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
+
+  if (table === "accounting_transactions" && record.amount != null && original) {
+    const { data: transactions, error: balanceError } = await db
+      .from("accounting_transactions")
+      .select("id, date, time, created_at, amount, bank_balance");
+    if (balanceError) return NextResponse.json({ error: balanceError.message }, { status: 400 });
+
+    const timeValue = (value: unknown) => {
+      const match = String(value || "").match(/^(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
+      if (!match) return 24 * 60;
+      let hour = Number(match[1]);
+      const minute = Number(match[2]);
+      const period = match[3]?.toUpperCase();
+      if (period === "PM" && hour < 12) hour += 12;
+      if (period === "AM" && hour === 12) hour = 0;
+      return hour * 60 + minute;
+    };
+    const ordered = (transactions || []).sort((a, b) =>
+      String(a.date || "").localeCompare(String(b.date || "")) ||
+      timeValue(a.time) - timeValue(b.time) ||
+      String(a.created_at || "").localeCompare(String(b.created_at || "")),
+    );
+    const first = ordered[0];
+    let runningBalance = first
+      ? Number(first.id === id ? original.bank_balance : first.bank_balance) -
+        Number(first.id === id ? original.amount : first.amount)
+      : 0;
+
+    const balances = ordered.map((transaction) => {
+      runningBalance = Math.round((runningBalance + (Number(transaction.amount) || 0) + Number.EPSILON) * 100) / 100;
+      return { id: transaction.id, bank_balance: runningBalance };
+    });
+    const updates = await Promise.all(
+      balances.map((transaction) =>
+        db.from("accounting_transactions").update({ bank_balance: transaction.bank_balance }).eq("id", transaction.id),
+      ),
+    );
+    const failed = updates.find((update) => update.error);
+    if (failed?.error) return NextResponse.json({ error: failed.error.message }, { status: 400 });
+    const editedBalance = balances.find((transaction) => transaction.id === id)?.bank_balance;
+    if (editedBalance != null) data.bank_balance = editedBalance;
+  }
+
   return NextResponse.json(data);
 }
 
