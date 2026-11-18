@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     if (balanceError) return NextResponse.json({ error: balanceError.message }, { status: 400 });
 
     const currentBalance = (transactions || []).reduce(
-      (total, transaction) => total + (Number(transaction.amount) || 0),
+      (total: number, transaction: { amount: number | string | null }) => total + (Number(transaction.amount) || 0),
       0,
     );
     recordToInsert = {
