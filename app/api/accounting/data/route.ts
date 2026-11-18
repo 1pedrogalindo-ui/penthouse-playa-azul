@@ -14,7 +14,9 @@ async function ensureCashSchema() {
     if (!connection) throw new Error("Base no configurada");
     const sql = postgres(connection, { max: 1, ssl: "require" });
     try {
-      await sql.unsafe(`create table if not exists public.cash_movements (id uuid primary key default gen_random_uuid(),date date not null,description text not null,document_no text,beneficiary text,category text not null,amount numeric(12,2) not null,origin text not null check(origin in ('cash','personal')),cash_balance numeric(12,2),paid_by text,reimbursement_status text not null default 'na' check(reimbursement_status in ('na','pending','reimbursed')),notes text,created_at timestamptz default now(),updated_at timestamptz default now());create index if not exists cash_movements_date_idx on public.cash_movements(date desc);alter table public.cash_movements enable row level security;revoke all on public.cash_movements from anon,authenticated;`);
+      await sql.unsafe(`create table if not exists public.cash_movements (id uuid primary key default gen_random_uuid(),date date not null,description text not null,document_no text,beneficiary text,category text not null,amount numeric(12,2) not null,origin text not null check(origin in ('cash','personal')),cash_balance numeric(12,2),paid_by text,reimbursement_status text not null default 'na' check(reimbursement_status in ('na','pending','reimbursed')),notes text,created_at timestamptz default now(),updated_at timestamptz default now());create index if not exists cash_movements_date_idx on public.cash_movements(date desc);alter table public.cash_movements enable row level security;revoke all on public.cash_movements from anon,authenticated;notify pgrst, 'reload schema';`);
+      // PostgREST refreshes its schema asynchronously after the notification.
+      await new Promise((resolve) => setTimeout(resolve, 750));
     } finally { await sql.end(); }
   })().catch((error) => { cashSchemaReady = null; throw error; });
   return cashSchemaReady;

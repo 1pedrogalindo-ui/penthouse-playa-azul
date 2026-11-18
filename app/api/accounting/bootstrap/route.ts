@@ -14,6 +14,7 @@ create table if not exists public.barters (id uuid primary key default gen_rando
 create index if not exists accounting_transactions_date_idx on public.accounting_transactions(date desc);create index if not exists accounting_transactions_category_idx on public.accounting_transactions(category);create index if not exists bookings_dates_idx on public.bookings(check_in,check_out);create index if not exists bookings_status_idx on public.bookings(status);create index if not exists expenses_date_idx on public.expenses(date desc);create index if not exists cash_movements_date_idx on public.cash_movements(date desc);
 alter table public.accounting_transactions enable row level security;alter table public.bookings enable row level security;alter table public.expenses enable row level security;alter table public.cash_movements enable row level security;alter table public.property_dues enable row level security;alter table public.barters enable row level security;
 revoke all on public.accounting_transactions,public.bookings,public.expenses,public.cash_movements,public.property_dues,public.barters from anon,authenticated;
+notify pgrst, 'reload schema';
 `;
 
 export async function POST() {
