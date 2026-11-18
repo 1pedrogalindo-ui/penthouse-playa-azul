@@ -111,7 +111,7 @@ function EntryModal({tab,close,saved}:{tab:Tab;close:()=>void;saved:()=>void}){
   const f=new FormData(e.currentTarget);
   const rawMovementAmount=Math.abs(Number(f.get("amount"))||0);
   const movementType=f.get("movement_type")==="credit"?"Crédito":"Débito";
-  let table="accounting_transactions",record:any={date:f.get("date"),description:f.get("description"),document_no:f.get("document"),category:f.get("category"),amount:movementType==="Crédito"?rawMovementAmount:-rawMovementAmount,type:movementType};
+  let table="accounting_transactions",record:any={date:f.get("date"),description:f.get("description"),document_no:f.get("document"),beneficiary:f.get("beneficiary"),category:f.get("category"),amount:movementType==="Crédito"?rawMovementAmount:-rawMovementAmount,type:movementType};
   if(tab==="income"){table="bookings";record={check_in:f.get("date"),check_out:f.get("end_date"),guest_name:f.get("description"),phone:f.get("phone"),guests:Number(f.get("guests")),season:f.get("category"),nightly_rate:Number(f.get("amount")),deposit:Number(f.get("deposit")),total:Number(f.get("total")),payment_status:f.get("payment_status"),status:"confirmed",source:"admin",date:f.get("date")}}
   if(tab==="expenses"){
    const expenseBase=roundMoney(Number(f.get("amount"))||0);
@@ -128,7 +128,7 @@ function EntryModal({tab,close,saved}:{tab:Tab;close:()=>void;saved:()=>void}){
   {tab==="income"&&<label>Salida<input name="end_date" type="date" required/></label>}
   <label>{tab==="income"?"Huésped":tab==="expenses"?"Proveedor":"Concepto"}<input name="description" required/></label>
   <label>{tab==="income"?"Temporada":tab==="expenses"?"Categoría del gasto":"Categoría"}<input name="category" required/></label>
-  {tab==="movements"&&<><label>Documento<input name="document" placeholder="N.º comprobante o referencia"/></label><label>Tipo de movimiento<select name="movement_type" defaultValue="debit"><option value="debit">Egreso</option><option value="credit">Ingreso</option></select></label></>}
+  {tab==="movements"&&<><label>Documento<input name="document" placeholder="N.º comprobante o referencia"/></label><label>Beneficiario<input name="beneficiary" placeholder="Persona o empresa"/></label><label>Tipo de movimiento<select name="movement_type" defaultValue="debit"><option value="debit">Egreso</option><option value="credit">Ingreso</option></select></label></>}
   <label>{tab==="income"?"Tarifa por noche":tab==="expenses"?"Base imponible":"Monto"}<input name="amount" type="number" min="0" step="0.01" required value={tab==="expenses"?base:undefined} onChange={tab==="expenses"?e=>setBase(e.target.value):undefined}/></label>
   {tab==="income"&&<><label>Total<input name="total" type="number" step="0.01" required/></label><label>Cobrado<input name="deposit" type="number" step="0.01" required/></label><label>Estado del pago<select name="payment_status"><option value="paid">Pagado</option><option value="pending">Pendiente</option></select></label><label>Huéspedes<input name="guests" type="number" min="1" required/></label><label>Teléfono<input name="phone"/></label></>}
   {tab==="expenses"&&<><label>IVA (%)<input name="tax_rate" type="number" min="0" max="100" step="0.01" value={taxRate} onChange={e=>setTaxRate(e.target.value)}/></label><label>IVA calculado<input type="text" value={money(calculatedTax)} readOnly/></label><label>Total<input type="text" value={money(calculatedTotal)} readOnly/></label><label>N.º factura<input name="invoice"/></label><label className="wide">Descripción<input name="notes"/></label></>}
