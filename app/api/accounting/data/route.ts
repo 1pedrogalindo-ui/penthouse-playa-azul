@@ -22,7 +22,24 @@ export async function POST(request: Request) {
   if (!(await authorized())) return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   const { table, record } = await request.json();
   if (!tables.includes(table)) return NextResponse.json({ error: "Tabla inválida" }, { status: 400 });
-  const { data, error } = await getSupabaseAdmin().from(table).insert(record).select().single();
+  const db = getSupabaseAdmin();
+  let recordToInsert = record;
+
+  if (table === "accounting_transactions" && record.bank_balance == null) {
+    const { data: transactions, error: balanceError } = await db.from("accounting_transactions").select("amount");
+    if (balanceError) return NextResponse.json({ error: balanceError.message }, { status: 400 });
+
+    const currentBalance = (transactions || []).reduce(
+      (total, transaction) => total + (Number(transaction.amount) || 0),
+      0,
+    );
+    recordToInsert = {
+      ...record,
+      bank_balance: Math.round((currentBalance + (Number(record.amount) || 0) + Number.EPSILON) * 100) / 100,
+    };
+  }
+
+  const { data, error } = await db.from(table).insert(recordToInsert).select().single();
   if (error) return NextResponse.json({ error: error.message }, { status: 400 });
   return NextResponse.json(data);
 }
